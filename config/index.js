@@ -12,7 +12,16 @@ module.exports = {
     dev_zs: require('./dev_zs.env'),
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    proxyTable: {},
+    
+    proxyTable: {//配置请求代理
+      '/api':{
+        target:'https://api.rinlink.com',
+        changeOrigin: true,
+        // pathRewrith:{
+        //   // '^/api': ''
+        // }
+      }
+    },
 
     // Various Dev Server settings
     host: 'localhost', // can be overwritten by process.env.HOST
@@ -54,7 +63,7 @@ module.exports = {
      * Source Maps
      */
 
-    productionSourceMap: true,
+    productionSourceMap: false,
     // https://webpack.js.org/configuration/devtool/#production
     devtool: '#source-map',
 
