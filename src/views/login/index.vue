@@ -1,7 +1,7 @@
 <template>
   <div class="login-container">
     <el-form class="card-box login-form" autoComplete="on" :model="loginForm" :rules="loginRules" ref="loginForm" label-position="left">
-      <h3 class="title">系统登录</h3>
+      <h3 class="title">零零智能管理系统</h3>
 
       <el-form-item prop="username">
        <span class="pl10 c iconfont icon-denglu"></span>
@@ -13,7 +13,7 @@
         <el-input name="password" :type="pwdType" @keyup.enter.native="handleLogin" v-model="loginForm.password" autoComplete="on"
           placeholder="密码" />
          
-        <span class="show-pwd iconfont icon-eye-close" @click="showPwd"></span>
+        <span :class="`show-pwd iconfont ${pwdType?'icon-yanbi':'icon-yankai'}`" @click="showPwd"></span>
       </el-form-item>
 
       <el-button type="primary" style="width:100%;margin-bottom:30px;" :loading="loading" @click.native.prevent="handleLogin">登录</el-button>
@@ -73,7 +73,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['setRouterList','setViewTagList','setIsLogin']),
+    ...mapActions(['setRouterList','setViewTagList','setIsLogin','setRoles']),
     showPwd() {
       if (this.pwdType === 'password') {
         this.pwdType = ''
@@ -103,7 +103,14 @@ export default {
         //   }).catch(()=>{
 
         //   })
-          console.log(routerlist.routes)
+          // console.log(routerlist.routes)
+
+          // console.log(this.loginForm)
+          if(this.loginForm.username=='6666666666'&&this.loginForm.password=='111111'){
+            this.setRoles('admin')
+          }else{
+            this.setRoles('user')
+          }
           this.setIsLogin(1)
           this.setRouterList(routerlist.routes)
           this.$router.push('index')
@@ -208,7 +215,7 @@ export default {
       color: #454545;
     }
     .show-pwd {
-      position: absolute;
+      
       right: 10px;
       top: 7px;
       font-size: 16px;
