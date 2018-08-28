@@ -14,7 +14,7 @@ export default (Vue) => {
   // axios配置
   // axios.defaults.baseURL = config[process.env.NODE_ENV].host
   // axios.defaults.baseURL = 'http://localhost:8080/api'
-  axios.defaults.baseURL = 'https://admin.rinlink.com/api'
+  axios.defaults.baseURL = process.env.host
   axios.defaults.timeout = 100000
   axios.defaults.withCredentials = true
   axios.defaults.headers['jwt'] = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjAsIm9wZW5pZCI6Im9rcERXNVh6dmtENDFlc25ZdkVNR29ZYlI3V1EiLCJpYXQiOjE1MzM3ODUyMDMsImV4cCI6MTU0MTU2MTIwM30.UOYEz0JsLr4hXDCSxOyMJSUnA2LrxAIMCTNTXt9nbNY';
