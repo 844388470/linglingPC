@@ -24,9 +24,14 @@
                                 label="imei">
                             </el-table-column>
                             <el-table-column
+                                prop="type"
+                                 width="120"
+                                label="设备类型">
+                            </el-table-column>
+                            <el-table-column
                                 prop="model"
                                  width="120"
-                                label="型号">
+                                label="设备型号">
                             </el-table-column>
                             <el-table-column
                                 prop="id"
@@ -65,12 +70,17 @@
             <div>
                 <label class="el-form-item__label">imei:</label>
                 <el-input v-model="imei" :disabled="!(roles=='admin' || !isEdit)"></el-input>
+                <label class="el-form-item__label">iccid:</label>
+                <el-input v-model="iccid" :disabled="!(roles=='admin' || !isEdit)"></el-input>
                 <label class="el-form-item__label">type:</label>
-                <div style="width: 100%;display: inline-block;position: relative;">
-                    <el-radio v-model="type" label="d601" :disabled="!(roles=='admin' || !isEdit)">d601</el-radio>
-                    <el-radio v-model="type" label="D606" :disabled="!(roles=='admin' || !isEdit)">D606</el-radio>
-                    <el-radio v-model="type" label="D601003" :disabled="!(roles=='admin' || !isEdit)">D601003</el-radio>
+                <el-input v-model="type" :disabled="!(roles=='admin' || !isEdit)" v-if="roles=='admin'"></el-input>
+                <div style="width: 100%;display: inline-block;position: relative;"  v-if="roles!=='admin'">
+                    <el-radio v-model="type" label="D601testP2">D601</el-radio>
+                    <el-radio v-model="type" label="D603testP2">D603</el-radio>
+                    <el-radio v-model="type" label="D608test">D608</el-radio>
                 </div>
+                <label class="el-form-item__label" v-if="roles=='admin'">model:</label>
+                <el-input v-model="model" :disabled="!(roles=='admin' || !isEdit)" v-if="roles=='admin'"></el-input>
             </div>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="handleClose">取 消</el-button>
@@ -86,6 +96,8 @@
         data(){
             return {
                 roles:this.$store.getters.roles,
+                selects:[{name:'D601',id:'D601testP2'},{name:'D603',id:'D603testP2'},{name:'D608',id:'D608test'}],
+                // selects:[{name:'D601',id:'D601testP2'},{name:'D603',id:'D603testP2'},{name:'D608',id:'D608test'}],
                 height:0,
                 list:[],
                 listLoading:false,
@@ -93,18 +105,28 @@
                 listxian:[],
                 search:'',
                 imei:'',
+                iccid:'',
                 type:'',
+                model:'',
                 dialogState:false,
                 isEdit:false,
                 editId:-1
             }
         },
+        activated(){
+            console.log('进入了')
+        },
+        deactivated(){
+            console.log('离开了')
+        },
         mounted(){
+            
             this.height=document.body.offsetHeight-235
             this.getList()
         },
         methods:{
             getList(){
+                this.search=''
                 this.listLoading=true
                 api.getzhucheList().then(_=>{
                     if(Array.isArray(_)){
@@ -125,11 +147,15 @@
             openDialog(state,obj){
                 if(state){
                     this.imei=obj.imei
+                    this.iccid=obj.iccid
                     this.type=obj.type
+                    this.model=obj.model
                     this.editId=obj.id
                 }else{
                     this.imei=''
+                    this.iccid=''
                     this.type=''
+                    this.model=''
                     this.editId=-1
                 }
                 this.isEdit=state
@@ -146,9 +172,9 @@
                 if(this.isEdit){
                     let data={
                         imei:this.imei,
-                        iccid:this.imei,
+                        iccid:this.iccid,
                         type:this.type,
-                        model:this.type,
+                        model:this.model,
                         manufacturer_name:'Rinlink',
                         manufacturer_id:'Rinlink'
                     }
@@ -184,9 +210,13 @@
                         imei:this.imei,
                         iccid:this.imei,
                         type:this.type,
-                        model:this.type,
+                        model:this.model,
                         manufacturer_name:'Rinlink',
                         manufacturer_id:'Rinlink'
+                    }
+                    if(this.roles!=='admin'){
+                        data.type=this.type
+                        data.model=this.type
                     }
                     this.addOrEditLoading=true
                     api.zhucheAdd(data).then(_=>{

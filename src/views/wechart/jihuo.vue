@@ -8,7 +8,7 @@
                 <el-col :span="16">
                       <el-button @click="filterSearch">查找</el-button>
                       <el-button @click="getList">刷新</el-button>
-                      <!-- <el-button @click="openDialog(false)">注册</el-button> -->
+                      <el-button @click="openDialog(false)" v-if="roles=='admin'">添加</el-button>
                 </el-col>
             </el-row>
         </el-card>
@@ -26,7 +26,7 @@
                             <el-table-column
                                 prop="model"
                                  width="120"
-                                label="型号">
+                                label="类型">
                             </el-table-column>
                             <el-table-column
                                 prop="id"
@@ -53,13 +53,13 @@
                             </el-table-column>
                             <el-table-column label="操作">
                                 <template slot-scope="scope">
-                                    <!-- <el-button
+                                    <el-button
                                     size="mini"
-                                    @click="openDialog(true,scope.row)">编辑</el-button> -->
-                                    <!-- <el-button
+                                    @click="openDialog(true,scope.row)">编辑</el-button>
+                                    <el-button
                                     v-if="roles=='admin'"
                                     size="mini"
-                                    @click="deleteEqu(scope.row.id)">删除</el-button> -->
+                                    @click="deleteEqu(scope.row.id)">删除</el-button>
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -75,12 +75,20 @@
             <div>
                 <label class="el-form-item__label">imei:</label>
                 <el-input v-model="imei" :disabled="!(roles=='admin' || !isEdit)"></el-input>
-                <label class="el-form-item__label">type:</label>
+                <label class="el-form-item__label">imsi:</label>
+                <el-input v-model="imsi" :disabled="!(roles=='admin' || !isEdit)"></el-input>
+                <label class="el-form-item__label" v-if="isEdit">电信id:</label>
+                <el-input  v-if="isEdit" v-model="device_id" :disabled="!(roles=='admin' || !isEdit)"></el-input>
+                <label class="el-form-item__label">绑定模式:</label>
                 <div style="width: 100%;display: inline-block;position: relative;">
-                    <el-radio v-model="type" label="d601" :disabled="!(roles=='admin' || !isEdit)">d601</el-radio>
-                    <el-radio v-model="type" label="D606" :disabled="!(roles=='admin' || !isEdit)">D606</el-radio>
-                    <el-radio v-model="type" label="D601003" :disabled="!(roles=='admin' || !isEdit)">D601003</el-radio>
+                    <el-radio v-model="bind_mode" label="1" :disabled="!(roles=='admin' || !isEdit)">允许任何人</el-radio>
+                    <el-radio v-model="bind_mode" label="0" :disabled="!(roles=='admin' || !isEdit)">管理员审核</el-radio>
+                    <el-radio v-model="bind_mode" label="2" :disabled="!(roles=='admin' || !isEdit)">拒绝任何人</el-radio>
                 </div>
+                <label class="el-form-item__label">设备类型:</label>
+                <el-input  v-model="model" :disabled="!(roles=='admin' || !isEdit)"></el-input>
+                <label class="el-form-item__label">设备名称:</label>
+                <el-input  v-model="name" :disabled="!(roles=='admin' || !isEdit)"></el-input>
             </div>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="handleClose">取 消</el-button>
@@ -103,7 +111,11 @@
                 listxian:[],
                 search:'',
                 imei:'',
-                type:'',
+                imsi:'',
+                device_id:'',
+                bind_mode:'',
+                model:'',
+                name:'',
                 dialogState:false,
                 isEdit:false,
                 editId:-1
@@ -115,6 +127,7 @@
         },
         methods:{
             getList(){
+                this.search=''
                 this.listLoading=true
                 api.getEquList().then(_=>{
                     if(Array.isArray(_)){
@@ -135,11 +148,19 @@
             openDialog(state,obj){
                 if(state){
                     this.imei=obj.imei
-                    this.type=obj.type
+                    this.imsi=obj.imsi
+                    this.device_id=obj.device_id
+                    this.bind_mode=obj.bind_mode+''
+                    this.model=obj.model
+                    this.name=obj.name
                     this.editId=obj.id
                 }else{
                     this.imei=''
-                    this.type=''
+                    this.imsi=''
+                    this.device_id=''
+                    this.bind_mode=''
+                    this.model=''
+                    this.name=''
                     this.editId=-1
                 }
                 this.isEdit=state
@@ -151,27 +172,21 @@
                         type: 'warning',
                         message: '输入不得为空!'
                     });
-                    return 
-                }
-                if(this.list.filter(obj=>obj.imei==this.imei).length){
-                    this.$message({
-                        type: 'warning',
-                        message: '该imei已存在!'
-                    });
                     return
                 }
                 if(this.isEdit){
                     let data={
                         imei:this.imei,
-                        iccid:this.imei,
-                        type:this.type,
-                        model:this.type,
-                        manufacturer_name:'Rinlink',
-                        manufacturer_id:'Rinlink'
+                        imsi:this.imsi,
+                        device_id:this.device_id,
+                        bind_mode:this.bind_mode,
+                        model:this.model,
+                        name:this.name,
+                        model:this.model
                     }
                     this.addOrEditLoading=true
-                    api.zhucheEdit(this.editId,data).then(_=>{
-                        if(_.affectedRows){
+                    api.equEdit(this.editId,data).then(_=>{
+                        if(_){
                             this.$message({
                                 type: 'success',
                                 message: '修改成功!'
@@ -190,16 +205,23 @@
                         this.addOrEditLoading=false
                     })
                 }else{
+                    if(this.list.filter(obj=>obj.imei==this.imei).length){
+                        this.$message({
+                            type: 'warning',
+                            message: '该imei已存在!'
+                        });
+                        return
+                    }
                     let data={
                         imei:this.imei,
-                        iccid:this.imei,
-                        type:this.type,
-                        model:this.type,
-                        manufacturer_name:'Rinlink',
-                        manufacturer_id:'Rinlink'
+                        imsi:this.imsi,
+                        bind_mode:this.bind_mode,
+                        model:this.model,
+                        name:this.name,
+                        model:this.model
                     }
                     this.addOrEditLoading=true
-                    api.zhucheAdd(data).then(_=>{
+                    api.equAdd(data).then(_=>{
                         if(_.id){
                             this.$message({
                                 type: 'success',
@@ -226,8 +248,7 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    console.log(123)
-                    api.zhucheDelete(id).then(_=>{
+                    api.equDelete(id).then(_=>{
                         if(_.affectedRows){
                             this.$message({
                                 type: 'success',
@@ -253,7 +274,7 @@
             },
             changeBindModel(id){
                 api.equEdit(id,{bind_mode:1}).then(_=>{
-                    if(_.affectedRows){
+                    if(_){
                         this.$message({
                             type: 'success',
                             message: '切换成功!'

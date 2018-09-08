@@ -9,7 +9,7 @@
                     </el-col>
                     <el-col :span="18">
                         <p class="title_name">{{item.name}}</p>
-                        <p class="title_num">{{item.num}}</p>
+                        <count-to :start-val="0" :end-val="item.num" :duration="2600" class="title_num"/>
                     </el-col>
                 </el-row>
             </el-card>
@@ -107,12 +107,15 @@
         // }
     }
 			
-
+import CountTo from 'vue-count-to'
 export default {
     name: 'homepage',
+    components:{
+        CountTo
+    },
     data() {
         return {
-            titleList:[{name:'设备总数',num:'62,500'},{name:'离线设备数',num:'1,500'},{name:'报警设备数',num:'1,689'},{name:'故障设备数',num:'586'}],
+            titleList:[{name:'设备总数',num:62500},{name:'离线设备数',num:1500},{name:'报警设备数',num:1689},{name:'故障设备数',num:586}],
             height:1000,
             map:null,
             active:'map',                   //打开状态

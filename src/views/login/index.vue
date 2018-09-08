@@ -35,9 +35,11 @@
 
 <script>
 // import { isvalidUsername } from '@/utils/validate'
+import api from '@/api/login/index'
 import socialSign from './socialsignin'
 import {routerlist} from '@/router/index'
 import {mapActions,mapGetters} from 'vuex'
+import { Message } from 'element-ui'
 // import * as pub from '@/api/public'
 // import * as log from '@/api/login'
 export default {
@@ -73,7 +75,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['setRouterList','setViewTagList','setIsLogin','setRoles']),
+    ...mapActions(['setRouterList','setViewTagList','setIsLogin','setRoles','setToken']),
     showPwd() {
       if (this.pwdType === 'password') {
         this.pwdType = ''
@@ -106,14 +108,23 @@ export default {
           // console.log(routerlist.routes)
 
           // console.log(this.loginForm)
-          if(this.loginForm.username=='6666666666'&&this.loginForm.password=='111111'){
-            this.setRoles('admin')
-          }else{
-            this.setRoles('user')
-          }
-          this.setIsLogin(1)
-          this.setRouterList(routerlist.routes)
-          this.$router.push('index')
+          api.login({username:this.loginForm.username,password:this.loginForm.password}).then(res=>{
+            if(this.loginForm.username=='admin'&&this.loginForm.password=='admin123456'){
+              this.setRoles('admin')
+            }else{
+              this.setRoles('user')
+            }
+            if(res.id){
+              this.setIsLogin(1)
+              this.setRouterList(routerlist.routes)
+              this.setToken(res.token)
+              this.$router.push('index')
+            }
+            
+          }).catch(err=>{
+            Message.error('登录失败,账号或密码错误')
+            console.log(err)
+          })
         } else {
           console.log('error submit!!')
           return false

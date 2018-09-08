@@ -17,7 +17,8 @@ export default (Vue) => {
   axios.defaults.baseURL = process.env.host
   axios.defaults.timeout = 100000
   axios.defaults.withCredentials = true
-  axios.defaults.headers['jwt'] = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjAsIm9wZW5pZCI6Im9rcERXNVh6dmtENDFlc25ZdkVNR29ZYlI3V1EiLCJpYXQiOjE1MzM3ODUyMDMsImV4cCI6MTU0MTU2MTIwM30.UOYEz0JsLr4hXDCSxOyMJSUnA2LrxAIMCTNTXt9nbNY';
+  // axios.defaults.headers['jwt'] = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjAsIm9wZW5pZCI6Im9rcERXNVh6dmtENDFlc25ZdkVNR29ZYlI3V1EiLCJpYXQiOjE1MzM3ODUyMDMsImV4cCI6MTU0MTU2MTIwM30.UOYEz0JsLr4hXDCSxOyMJSUnA2LrxAIMCTNTXt9nbNY';
+
   //  添加拦截器
   // request拦截器
   axios.interceptors.request.use(function (config) {
@@ -59,23 +60,23 @@ export default (Vue) => {
     // }
   }, function (error) {
     store.dispatch('setLoading', false) 
-    if (error.response) {
-      console.log(error.response.status)
-      switch (error.response.status) {
-        case 401:
-          console.log('401 未授权')
-          break
-        case 500:
-          console.log('账号密码出错')
-          break
+    // if (error.response) {
+    //   console.log(error.response.status)
+    //   switch (error.response.status) {
+    //     case 401:
+    //       console.log('401 未授权')
+    //       break
+    //     case 500:
+    //       console.log('账号密码出错')
+    //       break
 
-        default:
-          console.log('发生错误了')
-      }
-    } else {
-      console.log(error)
-    }
-    Message.error('呀呀呀，系统出错了')
+    //     default:
+    //       console.log('发生错误了')
+    //   }
+    // } else {
+    //   console.log(error)
+    // }
+    // Message.error('呀呀呀，系统出错了')
     return Promise.reject(error)
   })
 }

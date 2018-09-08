@@ -8,6 +8,7 @@ let state = {
   loading: false,
   routerList: sessionStorage['routerList'] ? JSON.parse(sessionStorage['routerList']) : [],
   roles:sessionStorage['roles'] ? sessionStorage['roles'] : '',
+  token:sessionStorage['token'] ? sessionStorage['token'] : '',
   viewTagList:sessionStorage['viewTagList'] ? JSON.parse(sessionStorage['viewTagList']) : [],     //tab标签
   isLogin:sessionStorage['isLogin'] ? sessionStorage['isLogin'] : 0
 }
@@ -31,6 +32,9 @@ let actions = {
   setRoles({ commit }, info) {
     commit('SET_ROLES', info)
   },
+  setToken({ commit }, info) {
+    commit('SET_TOKEN', info)
+  },
 }
 
 let mutations = {
@@ -52,6 +56,10 @@ let mutations = {
   SET_ROLES(state,info){
     sessionStorage['roles'] = info
     state.roles = info
+  },
+  SET_TOKEN(state,info){
+    sessionStorage['token'] = info
+    state.token = info
   }
 }
 let getters = {
@@ -60,6 +68,7 @@ let getters = {
   viewTagList: state => state.viewTagList,
   isLogin:  state => state.isLogin,
   roles:  state => state.roles,
+  token:  state => state.token,
 }
 
 export default new Vuex.Store({

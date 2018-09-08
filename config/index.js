@@ -15,7 +15,7 @@ module.exports = {
     
     proxyTable: {//配置请求代理
       '/api':{
-        target:'https://api.rinlink.com',
+        target:'https://tapi.rinlink.com',
         changeOrigin: true,
         // pathRewrith:{
         //   // '^/api': ''

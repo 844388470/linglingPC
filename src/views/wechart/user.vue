@@ -1,5 +1,5 @@
 <template>
-    <div id="wechartUser" v-loading="listLoading">
+    <div id="user" v-loading="listLoading">
         <el-card shadow="always" class="mb20">
             <el-row :gutter="10">
                 <el-col :span="4">
@@ -8,7 +8,7 @@
                 <el-col :span="16">
                       <el-button @click="filterSearch">查找</el-button>
                       <el-button @click="getList">刷新</el-button>
-                      <el-button v-if="roles=='admin'" @click="openDialogs(false)">注册</el-button>
+                      <el-button @click="openDialogs(false)">注册</el-button>
                 </el-col>
             </el-row>
         </el-card>
@@ -20,8 +20,8 @@
                             :data="listxian"
                             style="width: 100%">
                             <el-table-column
-                                prop="nickname"
-                                label="微信昵称">
+                                prop="username"
+                                label="账号">
                             </el-table-column>
                             <el-table-column label="id">
                                 <template slot-scope="scope">
@@ -29,12 +29,8 @@
                                 </template>
                             </el-table-column>
                             <el-table-column
-                                prop="phone"
-                                label="电话">
-                            </el-table-column>
-                            <el-table-column
-                                prop="height"
-                                label="身高">
+                                prop="role"
+                                label="权限">
                             </el-table-column>
                             <el-table-column
                                 prop="create_date"
@@ -42,9 +38,6 @@
                             </el-table-column>
                             <el-table-column label="操作" width="300"> 
                                 <template slot-scope="scope">
-                                    <el-button
-                                    size="mini"
-                                    @click="openDialog(scope.row.id)">查看绑定记录</el-button>
                                     <el-button
                                     v-if="roles=='admin'"
                                     size="mini"
@@ -61,81 +54,19 @@
             </div>
         </el-card>
         <el-dialog
-            title="绑定记录"
-            :visible.sync="dialogState"
-            width="60%"
-            :before-close="handleClose">
-            <div :style="{height:'400px',overflow:'hidden' }" v-loading="bindListLoading">
-                <el-scrollbar :style="{height:400+17+'px' }">
-                    <div style="overflow:hidden;">
-                        <el-table
-                            :data="bindList"
-                            style="width: 100%">
-                            <el-table-column
-                                prop="imei"
-                                label="imei">
-                            </el-table-column>
-                            <el-table-column label="id" width="100">
-                                <template slot-scope="scope">
-                                    {{scope.row.id}}
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="状态"  width="140">
-                                <template slot-scope="scope">
-                                    {{scope.row.status==9?'绑定成功':scope.row.status==1?'等待设备响应':scope.row.status==2?'绑定超时':scope.row.status==3?'等待管理员确认':scope.row.status==5?'管理员拒绝':''}}
-                                </template>
-                            </el-table-column>
-                            <el-table-column
-                                prop="create_date"
-                                label="创建时间">
-                            </el-table-column>
-                            <el-table-column label="操作">
-                                <template slot-scope="scope">
-                                    <el-button
-                                    v-if="scope.row.status==3"
-                                    size="mini"
-                                    @click="deleteBindRecord(scope.row.id)">删除</el-button>
-                                </template>
-                            </el-table-column>
-                        </el-table>
-                    </div>
-                </el-scrollbar>
-            </div>
-        </el-dialog>
-        <el-dialog
             :title="isEdit?'修改':'新增'"
             :visible.sync="dialogStates"
-            width="60%"
+            width="30%"
             :before-close="handleCloses">
             <div>
                 <el-row :gutter="20">
-                    <el-col :span="12">
-                        <label class="el-form-item__label">昵称:</label>
-                        <el-input v-model="nickname" :disabled="!(roles=='admin' || !isEdit)"></el-input>
+                    <el-col :span="24">
+                        <label class="el-form-item__label">账号:</label>
+                        <el-input v-model="username" :disabled="!(roles=='admin' || !isEdit)"></el-input>
                     </el-col>
-                    <el-col :span="12">
-                        <label class="el-form-item__label">姓名:</label>
-                        <el-input v-model="name" :disabled="!(roles=='admin' || !isEdit)"></el-input>
-                    </el-col>
-                    <el-col :span="12">
-                        <label class="el-form-item__label">电话:</label>
-                        <el-input v-model="phone" :disabled="!(roles=='admin' || !isEdit)"></el-input>
-                    </el-col>
-                    <el-col :span="12">
-                        <label class="el-form-item__label">邮箱:</label>
-                        <el-input v-model="email" :disabled="!(roles=='admin' || !isEdit)"></el-input>
-                    </el-col>
-                    <el-col :span="12">
-                        <label class="el-form-item__label">身高(m):</label>
-                        <el-input v-model="height" :disabled="!(roles=='admin' || !isEdit)"></el-input>
-                    </el-col>
-                    <el-col :span="12">
-                        <label class="el-form-item__label">体重(kg):</label>
-                        <el-input v-model="weight" :disabled="!(roles=='admin' || !isEdit)"></el-input>
-                    </el-col>
-                    <el-col :span="12">
-                        <label class="el-form-item__label">运动目标(步):</label>
-                        <el-input v-model="sport_target" :disabled="!(roles=='admin' || !isEdit)"></el-input>
+                    <el-col :span="24">
+                        <label class="el-form-item__label">密码:</label>
+                        <el-input v-model="password" :disabled="!(roles=='admin' || !isEdit)"></el-input>
                     </el-col>
                 </el-row>
             </div>
@@ -149,7 +80,7 @@
 <script>
     import api from '@/api/wechart/index'
     export default{
-        name:'wechartUser',
+        name:'user',
         data(){
             return {
                 roles:this.$store.getters.roles,
@@ -159,13 +90,8 @@
                 addOrEditLoading:false,
                 listxian:[],
                 search:'',
-                name:'',
-                nickname:'',
-                phone:'',
-                email:'',
-                height:'',
-                weight:'',
-                sport_target:'',
+                username:'',
+                password:'',
                 dialogState:false,
                 dialogStates:false,
                 isEdit:false,
@@ -185,7 +111,8 @@
                 this.listLoading=true
                 api.getUsersList().then(_=>{
                     if(Array.isArray(_)){
-                        this.list=_.filter(obj=>!obj.username&&!obj.username)
+                        this.list=_.filter(obj=>obj.username)
+                        console.log(this.list)
                         this.filterSearch()
                     }else{
                         this.$message.error('获取列表失败');
@@ -211,7 +138,7 @@
                 })
             },
             filterSearch(){
-                this.listxian=this.list.filter(obj=>obj.nickname&&obj.nickname.indexOf(this.search)!==-1)
+                this.listxian=this.list.filter(obj=>obj.username&&obj.username.indexOf(this.search)!==-1)
             },
             openDialog(id){
                 this.id=id
@@ -220,22 +147,17 @@
             },
             openDialogs(state,obj){
                 if(state){
-                    this.name=obj.name
-                    this.nickname=obj.nickname
-                    this.phone=obj.phone
-                    this.email=obj.email
-                    this.height=obj.height
-                    this.weight=obj.weight
-                    this.sport_target=obj.sport_target
-                    this.editId=obj.id
+                    this.username=obj.username
+                    // this.nickname=obj.nickname
+                    // this.phone=obj.phone
+                    // this.email=obj.email
+                    // this.height=obj.height
+                    // this.weight=obj.weight
+                    // this.sport_target=obj.sport_target
+                    // this.editId=obj.id
                 }else{
-                    this.name=''
-                    this.nickname=''
-                    this.phone=''
-                    this.email=''
-                    this.height=''
-                    this.weight=''
-                    this.sport_target=''
+                    this.username=''
+                    this.password=''
                     this.editId=-1
                 }
                 this.isEdit=state
@@ -244,13 +166,8 @@
             confirmAdd(){
                 if(this.isEdit){
                     let data={
-                        'name':this.name,
-                        'nickname':this.nickname,
-                        'phone':this.phone,
-                        'email':this.email,
-                        'height':this.height,
-                        'weight':this.weight,
-                        'sport_target':this.sport_target
+                        'username':this.username,
+                        'password':this.password
                     }
                     this.addOrEditLoading=true
                     api.userEdit(this.editId,data).then(_=>{
@@ -274,16 +191,11 @@
                     })
                 }else{
                     let data={
-                        'name':this.name,
-                        'nickname':this.nickname,
-                        'phone':this.phone,
-                        'email':this.email,
-                        'height':this.height,
-                        'weight':this.weight,
-                        'sport_target':this.sport_target
+                        'username':this.username,
+                        'password':this.password
                     }
                     this.addOrEditLoading=true
-                    api.userAdd(data).then(_=>{
+                    api.userRegister(data).then(_=>{
                         if(_.id){
                             this.$message({
                                 type: 'success',
