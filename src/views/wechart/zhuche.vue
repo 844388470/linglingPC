@@ -77,6 +77,7 @@
                 <div style="width: 100%;display: inline-block;position: relative;"  v-if="roles!=='admin'">
                     <el-radio v-model="type" label="D601testP2">D601</el-radio>
                     <el-radio v-model="type" label="D603testP2">D603</el-radio>
+                    <el-radio v-model="type" label="D606test">D606</el-radio>
                     <el-radio v-model="type" label="D608test">D608</el-radio>
                 </div>
                 <label class="el-form-item__label" v-if="roles=='admin'">model:</label>
