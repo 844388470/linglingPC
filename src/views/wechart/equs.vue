@@ -3,7 +3,7 @@
     <el-row :gutter="20" class="title">
         <el-col :span="6">
             <el-card shadow="hover">
-                <el-row :gutter="20">
+                <el-row :gutter="10">
                     <el-col :span="6">
                         <span class="icon iconfont icon-mobancaidan"></span>
                     </el-col>
@@ -16,12 +16,12 @@
         </el-col>
         <el-col :span="6">
             <el-card shadow="hover">
-                <el-row :gutter="20">
+                <el-row :gutter="10">
                     <el-col :span="6">
                         <span class="icon iconfont icon-mobancaidan"></span>
                     </el-col>
                     <el-col :span="18">
-                        <p class="title_name">最近三天激活设备</p>
+                        <p class="title_name">三天内激活设备</p>
                         <count-to :start-val="0" :end-val="equNumt" :duration="2600" class="title_num"/>
                     </el-col>
                 </el-row>
@@ -29,12 +29,12 @@
         </el-col>
         <el-col :span="6">
             <el-card shadow="hover">
-                <el-row :gutter="20">
+                <el-row :gutter="10">
                     <el-col :span="6">
                         <span class="icon iconfont icon-mobancaidan"></span>
                     </el-col>
                     <el-col :span="18">
-                        <p class="title_name">最近一个月激活设备</p>
+                        <p class="title_name">一个月内激活设备</p>
                         <count-to :start-val="0" :end-val="equNumo" :duration="2600" class="title_num"/>
                     </el-col>
                 </el-row>
@@ -42,12 +42,12 @@
         </el-col>
         <el-col :span="6">
             <el-card shadow="hover">
-                <el-row :gutter="20">
+                <el-row :gutter="10">
                     <el-col :span="6">
                         <span class="icon iconfont icon-mobancaidan"></span>
                     </el-col>
                     <el-col :span="18">
-                        <p class="title_name">最近三个月激活设备</p>
+                        <p class="title_name">三个月内激活设备</p>
                         <count-to :start-val="0" :end-val="equNumty" :duration="2600" class="title_num"/>
                     </el-col>
                 </el-row>
@@ -109,21 +109,21 @@ export default {
         },
         getEquListt(){
             api.getEquCounts({day:3}).then(res=>{
-                this.equNumt=res.all
+                this.equNumt=res.recentActive
             }).catch(err=>{
  
             })
         },
         getEquListo(){
             api.getEquCounts({day:30}).then(res=>{
-                this.equNumo=res.all
+                this.equNumo=res.recentActive
             }).catch(err=>{
 
             })
         },
         getEquListty(){
             api.getEquCounts({day:90}).then(res=>{
-                this.equNumty=res.all
+                this.equNumty=res.recentActive
             }).catch(err=>{
 
             })
@@ -147,28 +147,88 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
-  #equs {
-    .title{
-        cursor: pointer;
-        margin-bottom: 20px;
-        .icon-mobancaidan{
-            font-size:60px;
-            color: #666;
-        }
-        .title_name{
-            line-height:30px;
-            font-size: 16px;
-            color: #666;
-        }
-        .title_num{
-            line-height:30px;
-            font-weight: 600;
-            font-size: 30px;
-            color: #666;
+    #equs {
+        .title{
+            cursor: pointer;
+            margin-bottom: 20px;
+            .icon-mobancaidan{
+                color: #666;
+            }
+            .title_name{
+                color: #666;
+            }
+            .title_num{
+                font-weight: 600;
+                color: #666;
+            }
         }
     }
-  }
 </style>
 <style rel="stylesheet/scss" lang="scss">
-
+    @media screen and (min-width: 1400px) {
+        #equs {
+            .title{
+                .icon-mobancaidan{
+                    font-size:60px;
+                }
+                .title_name{
+                    font-size: 16px;
+                }
+                .title_num{
+                    font-size: 30px;
+                }
+            }
+        }
+    }
+    @media (min-width: 1260px) and (max-width: 1400px) {
+        #equs {
+            .title{
+                .icon-mobancaidan{
+                    font-size:50px;
+                }
+                .title_name{
+                    font-size: 16px;
+                }
+                .title_num{
+                    font-size: 30px;
+                }
+            }
+        }
+    }
+    @media (min-width: 1048px) and (max-width: 1260px) {
+        #equs {
+            .title{
+                .icon-mobancaidan{
+                    font-size:40px;
+                }
+                .title_name{
+                    font-size: 15px;
+                }
+                .title_num{
+                    font-size: 30px;
+                }
+                .el-card__body{
+                    padding:20px 10px;
+                }
+            }
+        }
+    }
+    @media screen and (max-width: 1048px) {
+        #equs {
+            .title{
+                .icon-mobancaidan{
+                    font-size:30px;
+                }
+                .title_name{
+                    font-size: 14px;
+                }
+                .title_num{
+                    font-size: 30px;
+                }
+                .el-card__body{
+                    padding:20px 5px;
+                }
+            }
+        }
+    }
 </style>

@@ -21,7 +21,7 @@
                         <span class="icon iconfont icon-mobancaidan"></span>
                     </el-col>
                     <el-col :span="18">
-                        <p class="title_name">最近三天新增用户</p>
+                        <p class="title_name">三天内新增用户</p>
                         <count-to :start-val="0" :end-val="userNumt" :duration="2600" class="title_num"/>
                     </el-col>
                 </el-row>
@@ -34,7 +34,7 @@
                         <span class="icon iconfont icon-mobancaidan"></span>
                     </el-col>
                     <el-col :span="18">
-                        <p class="title_name">最近一个月新增用户</p>
+                        <p class="title_name">一个月内新增用户</p>
                         <count-to :start-val="0" :end-val="userNumo" :duration="2600" class="title_num"/>
                     </el-col>
                 </el-row>
@@ -47,7 +47,7 @@
                         <span class="icon iconfont icon-mobancaidan"></span>
                     </el-col>
                     <el-col :span="18">
-                        <p class="title_name">最近三个月新增用户</p>
+                        <p class="title_name">三个月内新增用户</p>
                         <count-to :start-val="0" :end-val="userNumty" :duration="2600" class="title_num"/>
                     </el-col>
                 </el-row>
@@ -91,21 +91,21 @@ export default {
         },
         getUserListt(){
             api.getUserCounts({day:3}).then(res=>{
-                this.userNumt=res.all
+                this.userNumt=res.active
             }).catch(err=>{
 
             })
         },
         getUserListo(){
             api.getUserCounts({day:30}).then(res=>{
-                this.userNumo=res.all
+                this.userNumo=res.active
             }).catch(err=>{
 
             })
         },
         getUserListty(){
             api.getUserCounts({day:90}).then(res=>{
-                this.userNumty=res.all
+                this.userNumty=res.active
             }).catch(err=>{
 
             })
@@ -123,23 +123,83 @@ export default {
         cursor: pointer;
         margin-bottom: 20px;
         .icon-mobancaidan{
-            font-size:60px;
             color: #666;
         }
         .title_name{
-            line-height:30px;
-            font-size: 16px;
             color: #666;
         }
         .title_num{
-            line-height:30px;
             font-weight: 600;
-            font-size: 30px;
             color: #666;
         }
     }
   }
 </style>
 <style rel="stylesheet/scss" lang="scss">
-
+    @media screen and (min-width: 1400px) {
+        #users {
+            .title{
+                .icon-mobancaidan{
+                    font-size:60px;
+                }
+                .title_name{
+                    font-size: 16px;
+                }
+                .title_num{
+                    font-size: 30px;
+                }
+            }
+        }
+    }
+    @media (min-width: 1260px) and (max-width: 1400px) {
+        #users {
+            .title{
+                .icon-mobancaidan{
+                    font-size:50px;
+                }
+                .title_name{
+                    font-size: 16px;
+                }
+                .title_num{
+                    font-size: 30px;
+                }
+            }
+        }
+    }
+    @media (min-width: 1048px) and (max-width: 1260px) {
+        #users {
+            .title{
+                .icon-mobancaidan{
+                    font-size:40px;
+                }
+                .title_name{
+                    font-size: 15px;
+                }
+                .title_num{
+                    font-size: 30px;
+                }
+                .el-card__body{
+                    padding:20px 10px;
+                }
+            }
+        }
+    }
+    @media screen and (max-width: 1048px) {
+        #users {
+            .title{
+                .icon-mobancaidan{
+                    font-size:30px;
+                }
+                .title_name{
+                    font-size: 14px;
+                }
+                .title_num{
+                    font-size: 30px;
+                }
+                .el-card__body{
+                    padding:20px 5px;
+                }
+            }
+        }
+    }
 </style>

@@ -17,7 +17,7 @@ const list={
         radius:true,
         redirect: '/index/index',
         icon: 'shouye',
-        children: [{path: 'index',name:'首页',radius:true,component: _import('home/homepage'),meta: { keep:'homepage' }}]
+        children: [{path: 'index',name:'首页',radius:true,component: _import('wechart/equs'),meta: { keep:'homepage' }}]
       },
       // {
       //   path: '/EquMonit',
@@ -95,7 +95,7 @@ const list={
       // },
       {
         path: '/wechart',
-        name: '设备列表',
+        name: '设备管理',
         radius:true,
         component: _import('index'),
         icon: 'chanpinguanli',
@@ -104,6 +104,7 @@ const list={
           {path: 'zhuche',name: '设备导入表',component:() => import('@/views/wechart/zhuche') ,meta: { keep: 'zhuche' },radius:true,},
           {path: 'jihuo',name: '已激活设备',component: () =>import('@/views/wechart/jihuo'),meta: { keep: 'jihuo' },radius:true,},
           {path: 'history',name: '设备轨迹',component: () =>import('@/views/wechart/history'),meta: { keep: 'history' },radius:true,},
+          {path: 'location',name: '设备定位',component: () =>import('@/views/wechart/location'),meta: { keep: 'location' },radius:true,},
           // {path: 'wechartUser',name: '小程序用户',component: () =>import('@/views/wechart/wechartUser'),meta: { keep: 'wechartUser' },radius:true,},
         ]
       },

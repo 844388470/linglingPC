@@ -71,7 +71,8 @@ const getUserCount = () => (
 )
 
 const getUserCounts = (day) => (
-    axios.get('/users/count',day)
+    // axios.get(`/users/count`)
+    axios.get(`/users/count?days=${day.day}`)
 )
 
 const getEquCount = () => (
@@ -79,7 +80,7 @@ const getEquCount = () => (
 )
 
 const getEquCounts = (day) => (
-    axios.get('/devices/count',day)
+    axios.get(`/devices/count?days=${day.day}`)
 )
 
 const getEquCity = () => (
@@ -92,6 +93,10 @@ const getEquModel = () => (
 
 const getHistory = (id,data) => (
     axios.get(`/devices/${id}/positions?startTime=${data.startTime}&endTime=${data.endTime}`)
+)
+
+const getLocation = (id) => (
+    axios.get(`/devices/${id}/latest`)
 )
 
 export default {
@@ -117,5 +122,6 @@ export default {
     getEquCounts,
     getEquCity,
     getEquModel,
-    getHistory
+    getHistory,
+    getLocation
 }
