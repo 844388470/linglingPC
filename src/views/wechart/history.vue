@@ -2,8 +2,8 @@
     <div id="history">
         <el-card shadow="always" class="mb20">
             <el-row :gutter="10">
-                <el-col :span="4">
-                    <el-input v-model="id" placeholder="设备id"></el-input>
+                <el-col :span="6">
+                    <el-input v-model="id" placeholder="设备imei"></el-input>
                 </el-col>
 
                 <el-col :span="6">
@@ -25,9 +25,10 @@
                 </el-col>
 
                 <el-col :span="6">
-                      <el-button @click="getHistory">查找</el-button>
-                      <el-button @click="">删除</el-button>
-                      <el-button @click="">123</el-button>
+                      <el-button @click="getHistory" :disabled="listLoading">查找</el-button>
+                      <el-button @click="getList">刷新</el-button>
+                      <!-- <el-button @click="">删除</el-button>
+                      <el-button @click="">123</el-button> -->
                 </el-col>
             </el-row>
         </el-card>
@@ -45,6 +46,8 @@
         data(){
             return {
                 roles:this.$store.getters.roles,
+                listLoading:true,
+                equList:[],
                 height:0,
                 id:'',
                 startTime:'',
@@ -59,6 +62,7 @@
         mounted(){
             this.height=document.body.offsetHeight-235
             this.setMap('map')
+            this.getList()
         },
         methods:{
             isMap(){
@@ -78,19 +82,27 @@
                 this.listLoading=true
                 api.getEquList().then(_=>{
                     if(Array.isArray(_)){
-                        this.list=_
+                        this.equList=_
                         this.filterSearch()
                     }else{
-                        this.$message.error('获取列表失败');
+                        // this.$message.error('获取列表失败');
                     }
                     this.listLoading=false
                 }).catch(_=>{
-                    this.$message.error('获取列表失败');
+                    // this.$message.error('获取列表失败');
                     this.listLoading=false
                 })
             },
             getHistory(){
-                api.getHistory(this.id,{startTime:this.startTime,endTime:this.endTime}).then(res=>{
+                if(!this.id||!this.startTime||!this.endTime){
+                    this.$message.warning('输入有误');
+                    return
+                }
+                if(this.equList.filter(res=>res.imei==this.id).length===0){
+                    this.$message.warning('该imei无效');
+                    return
+                }
+                api.getHistory(this.equList.filter(res=>res.imei==this.id)[0].id,{startTime:this.startTime,endTime:this.endTime}).then(res=>{
                     let list=[]
                     this.deleteMapMarker()
                     this.deleteInfoWindow()
@@ -99,6 +111,10 @@
                         if(res[i].longitude&&res[i].latitude){
                             list.push({lang:[res[i].longitude,res[i].latitude],time:res[i].eventTime})
                         }
+                    }
+                    if(!list.length){
+                        this.$message.warning('轨迹为空');
+                        return 
                     }
                     this.addMarker(list)
                 }).catch(err=>{
@@ -159,6 +175,7 @@
                         infoWindow.open(_this.map,mapker.getPosition());
                     },list[i].time))
                 }
+                this.map.setCenter(list[0].lang); 
                 this.polyline = new AMap.Polyline({
                     path: polyline,  
                     strokeWeight: 6, // 线条宽度，默认为 1
