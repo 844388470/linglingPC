@@ -17,7 +17,7 @@ const list={
         radius:true,
         redirect: '/index/index',
         icon: 'shouye',
-        children: [{path: 'index',name:'首页',radius:true,component: _import('wechart/equs'),meta: { keep:'homepage' }}]
+        children: [{path: 'index',name:'首页',radius:true,component: () =>import('@/views/wechart/users'),meta: { keep:'homepage' }}]
       },
       // {
       //   path: '/EquMonit',
