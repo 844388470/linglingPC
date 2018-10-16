@@ -109,7 +109,7 @@
                     this.deletePolyline()
                     for(let i in res){
                         if(res[i].longitude&&res[i].latitude){
-                            list.push({lang:[res[i].longitude,res[i].latitude],time:res[i].eventTime})
+                            list.push({lang:[res[i].longitude,res[i].latitude],time:res[i].eventTime,wifiGpsFlag:res[i].wifiGpsFlag})
                         }
                     }
                     if(!list.length){
@@ -165,7 +165,8 @@
                     this.mapMarker.push(mapker)
                     this.mapMarkerEvent.push(AMap.event.addListener(mapker, 'click', function() {
                         var infoWindow;
-                        var info=`<div>时间:${this}</div>`
+                        console.log(this)
+                        var info=`<div>时间:${this.time}</div><div>定位方式:${this.wifiGpsFlag===2?'WIFI':(this.wifiGpsFlag===1?'GPS':(this.wifiGpsFlag===0?'基站':''))}</div>`
                         infoWindow = new AMap.InfoWindow({
                             content: info,  //使用默认信息窗体框样式，显示信息内容
                             offset:new AMap.Pixel(0,-20),
@@ -173,7 +174,7 @@
                         });
                         AMap.event.addListener(infoWindow,'open',function(){_this.infoWindow=this})
                         infoWindow.open(_this.map,mapker.getPosition());
-                    },list[i].time))
+                    },list[i]))
                 }
                 this.map.setCenter(list[0].lang); 
                 this.polyline = new AMap.Polyline({

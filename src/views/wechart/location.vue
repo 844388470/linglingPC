@@ -1,35 +1,5 @@
 <template>
     <div id="location">
-        <!-- <el-card shadow="always" class="mb20">
-            <el-row :gutter="10">
-                <el-col :span="6">
-                    <el-input v-model="id" placeholder="设备imei"></el-input>
-                </el-col>
-
-                <el-col :span="6">
-                    <el-date-picker
-                        v-model="startTime"
-                        value-format="yyyy-MM-dd HH:mm:ss"
-                        type="datetime"
-                        placeholder="选择开始时间">
-                    </el-date-picker>
-                </el-col>
-                
-                <el-col :span="6">
-                    <el-date-picker
-                        v-model="endTime"
-                        value-format="yyyy-MM-dd HH:mm:ss"
-                        type="datetime"
-                        placeholder="选择结束时间">
-                    </el-date-picker>
-                </el-col>
-
-                <el-col :span="6">
-                      <el-button @click="getHistory" :disabled="listLoading">查找</el-button>
-                      <el-button @click="getList">刷新</el-button>
-                </el-col>
-            </el-row>
-        </el-card> -->
         <el-row :gutter="10">
             <el-col :span="8" :lg="6">
                 <el-card shadow="always" :style="'height:'+height+'px'" v-loading="listLoading">
@@ -126,7 +96,7 @@
                         this.map.setCenter([res.longitude,res.latitude]); 
                         this.mapMarker.push({id:obj.id,mapker:mapker,event:AMap.event.addListener(mapker, 'click', function() {
                             var infoWindow;
-                            var info=`<div>imei:${this.imei}</div><div>时间:${this.time}</div>`
+                            var info=`<div>imei:${this.imei}</div><div>时间:${this.time}</div><div>定位方式:${this.wifiGpsFlag===2?'WIFI':(this.wifiGpsFlag===1?'GPS':(this.wifiGpsFlag===0?'基站':''))}</div>`
                             infoWindow = new AMap.InfoWindow({
                                 content: info,  //使用默认信息窗体框样式，显示信息内容
                                 offset:new AMap.Pixel(0,-20),
@@ -134,7 +104,7 @@
                             });
                             AMap.event.addListener(infoWindow,'open',function(){_this.infoWindow=this})
                             infoWindow.open(_this.map,mapker.getPosition());
-                        },{time:res.eventTime,imei:obj.imei})})
+                        },{time:res.eventTime,imei:obj.imei,wifiGpsFlag:res.wifiGpsFlag})})
                         obj.disabled=false
                         this.$refs.tree2.setCheckedKeys(this.$refs.tree2.getCheckedKeys());
                     }else{
@@ -182,37 +152,6 @@
                     this.listLoading=false
                 })
             },
-            getHistory(){
-                if(!this.id||!this.startTime||!this.endTime){
-                    this.$message.warning('输入有误');
-                    return
-                }
-                if(this.equList.filter(res=>res.imei==this.id).length===0){
-                    this.$message.warning('该imei无效');
-                    return
-                }
-                api.getHistory(this.equList.filter(res=>res.imei==this.id)[0].id,{startTime:this.startTime,endTime:this.endTime}).then(res=>{
-                    let list=[]
-                    this.deleteMapMarker()
-                    this.deleteInfoWindow()
-                    this.deletePolyline()
-                    for(let i in res){
-                        if(res[i].longitude&&res[i].latitude){
-                            list.push({lang:[res[i].longitude,res[i].latitude],time:res[i].eventTime})
-                        }
-                    }
-                    if(!list.length){
-                        this.$message.warning('轨迹为空');
-                        return 
-                    }
-                    this.addMarker(list)
-                }).catch(err=>{
-                    this.$message({
-                        type: 'error',
-                        message: '请求错误!'
-                    });
-                })
-            },
             deleteInfoWindow(){             //删除信息窗口
                 if(this.infoWindow){
                     this.infoWindow.close()
@@ -229,47 +168,6 @@
                 if(this.polyline){
                     this.map.remove(this.polyline);
                 }
-            },
-            addMarker(list){                //添加点
-                let _this=this
-                let polyline=[]
-                // for(let i=0;i<this.mapMarker.length;i++){
-                //     // AMap.event.removeListener(this.mapMarkerEvent[i])
-                //     // this.mapMarkerEvent.splice(i,1)
-                //     this.map.remove(this.mapMarker[i])
-                //     this.mapMarker.splice(i,1)
-                // }
-                // let list=[{a:[121.362426, 31.123795],b:1},{a:[121.3641745, 31.123795],b:2},{a:[121.369531, 31.123795],b:3}]
-                
-                for(let i in list){
-                    let mapker=new AMap.Marker({
-                        position: list[i].lang,   // 经纬度对象，也可以是经纬度构成的一维数组[116.39, 39.9]
-                        map:this.map
-                    })
-                    polyline.push(list[i].lang)
-                    this.mapMarker.push(mapker)
-                    this.mapMarkerEvent.push(AMap.event.addListener(mapker, 'click', function() {
-                        var infoWindow;
-                        var info=`<div>时间:${this}</div>`
-                        infoWindow = new AMap.InfoWindow({
-                            content: info,  //使用默认信息窗体框样式，显示信息内容
-                            offset:new AMap.Pixel(0,-20),
-                            closeWhenClickMap:true
-                        });
-                        AMap.event.addListener(infoWindow,'open',function(){_this.infoWindow=this})
-                        infoWindow.open(_this.map,mapker.getPosition());
-                    },list[i].time))
-                }
-                this.polyline = new AMap.Polyline({
-                    path: polyline,  
-                    strokeWeight: 6, // 线条宽度，默认为 1
-                    strokeColor: 'red', // 线条颜色
-                    lineJoin: 'round', // 折线拐点连接处样式
-                    showDir:true
-                });
-
-                // 将折线添加至地图实例
-                this.map.add(this.polyline);
             },
         }
     }
