@@ -112,7 +112,7 @@
                     this.deletePolyline()
                     res.sort((a,b)=>new Date(a.eventTime).getTime()-new Date(b.eventTime).getTime())
                     for(let i in res){
-                        if(res[i].longitude&&res[i].latitude){
+                        if(res[i].longitude&&res[i].latitude&&!list.filter(obj=>obj.time==res[i].eventTime).length){
                             list.push({lang:[res[i].longitude,res[i].latitude],time:res[i].eventTime,wifiGpsFlag:res[i].wifiGpsFlag})
                         }
                     }
