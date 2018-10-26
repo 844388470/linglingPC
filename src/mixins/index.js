@@ -3,7 +3,7 @@ module.exports={
         return{
             page:{
                 index:1,                                //当前页   
-                size:20,                                //一页的数量
+                size:50,                                //一页的数量
                 total:0                                 //总数量
             },
             radioId:'',                                 //table单选中的id

@@ -116,8 +116,8 @@ const list={
         icon: 'denglu',
         redirect: '/UserManagement/wechartUser',
         children: [
-          {path: 'wechartUser',name: '小程序用户',component: () =>import('@/views/wechart/wechartUser'),meta: { keep: 'wechartUser' },radius:true,},
-          {path: 'user',name: '系统用户',component: () =>import('@/views/wechart/user'),meta: { keep: 'user' },radius:true,},
+          {path: 'wechartUser',name: '用户',component: () =>import('@/views/wechart/wechartUser'),meta: { keep: 'wechartUser' },radius:true,},
+          // {path: 'user',name: '系统用户',component: () =>import('@/views/wechart/user'),meta: { keep: 'user' },radius:true,},
           {path: 'wxUserDetails',name: '微信用户详情',component: _import('menu4/menu4'),meta: { index: '4' },radius:false,},
         ]
       },

@@ -7,7 +7,7 @@
                 </el-col>
                 <el-col :span="16">
                       <el-button @click="filterSearch">查找</el-button>
-                      <el-button @click="getList">刷新</el-button>
+                      <el-button @click="changeindex(1)">刷新</el-button>
                       <el-button @click="openDialog(false)">注册</el-button>
                 </el-col>
             </el-row>
@@ -62,6 +62,16 @@
                 </el-scrollbar>
             </div>
         </el-card>
+        <el-card shadow="always" class="mt20">
+            <el-pagination
+                @current-change="changeindex"
+                :current-page.sync="page.index"
+                :page-size="page.size"
+                layout="total, prev, pager, next ,jumper"
+                :disabled="search?true:false"
+                :total="page.total">
+            </el-pagination>
+        </el-card>
         <el-dialog
             :title="isEdit?'修改':'新增'"
             :visible.sync="dialogState"
@@ -98,8 +108,10 @@
 </template>
 <script>
     import api from '@/api/wechart/index'
+    import mixin from '@/mixins/index'
     export default{
         name:'zhuche',
+        mixins:[mixin],
         data(){
             return {
                 types:process.env.type,
@@ -122,24 +134,25 @@
             }
         },
         activated(){
-            console.log('进入了')
+            // console.log('进入了')
         },
         deactivated(){
-            console.log('离开了')
+            // console.log('离开了')
         },
         mounted(){
             console.log(this.types)
-            this.height=document.body.offsetHeight-235
+            this.height=document.body.offsetHeight-330
             this.getList()
         },
         methods:{
             getList(){
                 this.search=''
                 this.listLoading=true
-                api.getzhucheList().then(_=>{
-                    if(Array.isArray(_)){
-                        this.list=_
-                        this.filterSearch()
+                api.getzhucheListPagination({pageSize:this.page.size,offset:this.page.index-1}).then(_=>{
+                    if(Array.isArray(_.data)){
+                        this.list=_.data
+                        this.listxian=_.data
+                        this.page.total=_.page.total
                     }else{
                         this.$message.error('获取列表失败');
                     }
@@ -150,7 +163,19 @@
                 })
             },
             filterSearch(){
-                this.listxian=this.list.filter(obj=>obj.imei.indexOf(this.search)!==-1)
+                this.listLoading=true
+                api.getzhucheList(this.search).then(_=>{
+                    if(Array.isArray(_)){
+                        this.listxian=_
+                        this.page.total=_.length
+                    }else{
+                        this.$message.error('查找失败');
+                    }
+                    this.listLoading=false
+                }).catch(_=>{
+                    this.$message.error('查找失败');
+                    this.listLoading=false
+                })
             },
             openDialog(state,obj){
                 if(state){

@@ -6,8 +6,12 @@ const login=(data)=>(
     axios.post('/users/login',data)
 )
 
-const getzhucheList = () => (
-    axios.get('/deviceInfos')
+const getzhucheList = (imei) => (
+    axios.get(`/deviceInfos?imei=${imei}`)
+)
+
+const getzhucheListPagination = (data) => (
+    axios.post('/deviceInfos/pagination',data)
 )
 
 const zhucheAdd = (data) =>(
@@ -22,8 +26,12 @@ const zhucheDelete=(id)=>(
     axios.delete('/deviceInfos/'+id)
 )
 
-const getEquList = () => (
-    axios.get('/devices')
+const getEquList = (imei) => (
+    axios.get(`/devices?imei=${imei}`)
+)
+
+const getEquListPagination = (data) => (
+    axios.post('/devices/pagination',data)
 )
 
 const equAdd = (data) =>(
@@ -38,8 +46,12 @@ const equDelete=(id)=>(
     axios.delete('/devices/'+id)
 )
 
-const getUsersList = () => (
-    axios.get('/users')
+const getUsersList = (nickname) => (
+    axios.get(`/users?nickname=${nickname}`)
+)
+
+const getUsersListPagination = (data) => (
+    axios.post('/users/pagination',data)
 )
 
 const userAdd = (data) =>(
@@ -102,14 +114,17 @@ const getLocation = (id) => (
 export default {
     login,
     getzhucheList,
+    getzhucheListPagination,
     zhucheAdd,
     zhucheEdit,
     zhucheDelete,
     getEquList,
+    getEquListPagination,
     equAdd,
     equEdit,
     equDelete,
     getUsersList,
+    getUsersListPagination,
     userAdd,
     userRegister,
     userEdit,

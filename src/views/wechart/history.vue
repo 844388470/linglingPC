@@ -93,16 +93,19 @@
                     this.listLoading=false
                 })
             },
-            getHistory(){
-                if(!this.id||!this.startTime||!this.endTime){
+            async getHistory(){
+                if(!this.id||!this.startTime||!this.endTime || new Date(this.startTime)>new Date(this.endTime)){
                     this.$message.warning('输入有误');
                     return
                 }
-                if(this.equList.filter(res=>res.imei==this.id).length===0){
-                    this.$message.warning('该imei无效');
-                    return
+                const objList=await api.getEquList(this.id).catch(_=>{
+                    this.$message.error('查找设备失败');
+                    return []
+                })
+                if(objList.length===0){
+                    return this.$message.error('该设备不存在');
                 }
-                api.getHistory(this.equList.filter(res=>res.imei==this.id)[0].id,{startTime:this.startTime,endTime:this.endTime}).then(res=>{
+                api.getHistory(objList[0].id,{startTime:this.startTime,endTime:this.endTime}).then(res=>{
                     let list=[]
                     this.deleteMapMarker()
                     this.deleteInfoWindow()

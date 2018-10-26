@@ -3,11 +3,11 @@
         <el-card shadow="always" class="mb20">
             <el-row :gutter="10">
                 <el-col :span="4">
-                    <el-input v-model="search" placeholder="请输入用户名"></el-input>
+                    <el-input v-model="search" placeholder="请输入昵称"></el-input>
                 </el-col>
                 <el-col :span="16">
                       <el-button @click="filterSearch">查找</el-button>
-                      <el-button @click="getList">刷新</el-button>
+                      <el-button @click="changeindex(1)">刷新</el-button>
                       <el-button v-if="roles=='admin'" @click="openDialogs(false)">注册</el-button>
                 </el-col>
             </el-row>
@@ -21,7 +21,11 @@
                             style="width: 100%">
                             <el-table-column
                                 prop="nickname"
-                                label="微信昵称">
+                                label="昵称">
+                            </el-table-column>
+                            <el-table-column
+                                prop="username"
+                                label="登录账号">
                             </el-table-column>
                             <el-table-column label="id">
                                 <template slot-scope="scope">
@@ -32,15 +36,15 @@
                                 prop="phone"
                                 label="电话">
                             </el-table-column>
-                            <el-table-column
+                            <!-- <el-table-column
                                 prop="height"
                                 label="身高">
-                            </el-table-column>
+                            </el-table-column> -->
                             <el-table-column
                                 prop="create_date"
                                 label="创建时间">
                             </el-table-column>
-                            <el-table-column label="操作" width="300"> 
+                            <el-table-column label="操作" width="360"> 
                                 <template slot-scope="scope">
                                     <el-button
                                     size="mini"
@@ -52,6 +56,10 @@
                                     <el-button
                                     v-if="roles=='admin'"
                                     size="mini"
+                                    @click="pcOpenDialogs(true,scope.row)">修改登录</el-button>
+                                    <el-button
+                                    v-if="roles=='admin'"
+                                    size="mini"
                                     @click="deleteUser(scope.row.id)">删除</el-button>
                                 </template>
                             </el-table-column>
@@ -59,6 +67,16 @@
                     </div>
                 </el-scrollbar>
             </div>
+        </el-card>
+        <el-card shadow="always" class="mt20">
+            <el-pagination
+                @current-change="changeindex"
+                :current-page.sync="page.index"
+                :page-size="page.size"
+                layout="total, prev, pager, next ,jumper"
+                :disabled="search?true:false"
+                :total="page.total">
+            </el-pagination>
         </el-card>
         <el-dialog
             title="绑定记录"
@@ -140,23 +158,50 @@
                 </el-row>
             </div>
             <span slot="footer" class="dialog-footer">
-                <el-button @click="handleClose">取 消</el-button>
+                <el-button @click="handleCloses">取 消</el-button>
                 <el-button type="primary" @click="confirmAdd" :disabled="!(roles=='admin' || !isEdit)" :loading="addOrEditLoading">确 定</el-button>
+            </span>
+        </el-dialog>
+        <el-dialog
+            :title="pcIsEdit?'修改':'新增'"
+            :visible.sync="pcDialogStates"
+            width="30%"
+            :before-close="pcHandleCloses">
+            <div>
+                <el-row :gutter="20">
+                    <el-col :span="24">
+                        <label class="el-form-item__label">账号:</label>
+                        <el-input v-model="username" :disabled="!(roles=='admin' || !pcIsEdit)"></el-input>
+                    </el-col>
+                    <el-col :span="24">
+                        <label class="el-form-item__label">密码:</label>
+                        <el-input v-model="password" :disabled="!(roles=='admin' || !pcIsEdit)"></el-input>
+                    </el-col>
+                </el-row>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="pcHandleCloses">取 消</el-button>
+                <el-button type="primary" @click="pcConfirmAdd" :disabled="!(roles=='admin' || !pcIsEdit)" :loading="pcAddOrEditLoading">确 定</el-button>
             </span>
         </el-dialog>
     </div>
 </template>
 <script>
     import api from '@/api/wechart/index'
+    import mixin from '@/mixins/index'
     export default{
         name:'wechartUser',
+        mixins:[mixin],
         data(){
             return {
+                username:'',
+                password:'',
                 roles:this.$store.getters.roles,
                 windowHeight:0,
                 list:[],
                 listLoading:false,
                 addOrEditLoading:false,
+                pcAddOrEditLoading:false,
                 listxian:[],
                 search:'',
                 name:'',
@@ -168,25 +213,29 @@
                 sport_target:'',
                 dialogState:false,
                 dialogStates:false,
+                pcDialogStates:false,
                 isEdit:false,
+                pcIsEdit:false,
                 editId:-1,
+                pcEditId:-1,
                 id:-1,
                 bindList:[],
                 bindListLoading:false,
             }
         },
         mounted(){
-            this.windowHeight=document.body.offsetHeight-235
+            this.windowHeight=document.body.offsetHeight-330
             this.getList()
         },
         methods:{
             getList(){
                 this.search=''
                 this.listLoading=true
-                api.getUsersList().then(_=>{
-                    if(Array.isArray(_)){
-                        this.list=_.filter(obj=>!obj.username&&!obj.username)
-                        this.filterSearch()
+                api.getUsersListPagination({pageSize:this.page.size,offset:this.page.index-1}).then(_=>{
+                    if(Array.isArray(_.data)){
+                        this.list=_.data
+                        this.listxian=_.data
+                        this.page.total=_.page.total
                     }else{
                         this.$message.error('获取列表失败');
                     }
@@ -211,7 +260,19 @@
                 })
             },
             filterSearch(){
-                this.listxian=this.list.filter(obj=>obj.nickname&&obj.nickname.indexOf(this.search)!==-1)
+                this.listLoading=true
+                api.getUsersList(this.search).then(_=>{
+                    if(Array.isArray(_)){
+                        this.listxian=_
+                        this.page.total=_.length
+                    }else{
+                        this.$message.error('查找失败');
+                    }
+                    this.listLoading=false
+                }).catch(_=>{
+                    this.$message.error('查找失败');
+                    this.listLoading=false
+                })
             },
             openDialog(id){
                 this.id=id
@@ -365,6 +426,85 @@
             },
             handleCloses(){
                 this.dialogStates=false
+            },
+            pcOpenDialogs(state,obj){
+                if(state){
+                    this.username=obj.username
+                    this.password=''
+                    this.pcEditId=obj.id
+                    // this.nickname=obj.nickname
+                    // this.phone=obj.phone
+                    // this.email=obj.email
+                    // this.height=obj.height
+                    // this.weight=obj.weight
+                    // this.sport_target=obj.sport_target
+                    // this.editId=obj.id
+                }else{
+                    this.username=''
+                    this.password=''
+                    this.pcEditId=-1
+                }
+                this.pcIsEdit=state
+                this.pcDialogStates=true
+            },
+            pcConfirmAdd(){
+                if(this.pcIsEdit){
+                    let data={
+                        'username':this.username,
+                        'password':this.password
+                    }
+                    this.pcAddOrEditLoading=true
+                    api.userEdit(this.pcEditId,data).then(_=>{
+                        if(_.affectedRows){
+                            this.$message({
+                                type: 'success',
+                                message: '修改成功!'
+                            });
+                            this.pcDialogStates=false
+                            this.getList()
+                            this.pcAddOrEditLoading=false
+                        }else{
+                            return Promise.reject()
+                        }
+                    }).catch(_=>{
+                        this.$message({
+                            type: 'error',
+                            message: '修改失败!'
+                        });
+                        this.pcAddOrEditLoading=false
+                    })
+                }else{
+                    let data={
+                        'username':this.username,
+                        'password':this.password
+                    }
+                    this.pcAddOrEditLoading=true
+                    api.userRegister(data).then(_=>{
+                        if(_.id){
+                            this.$message({
+                                type: 'success',
+                                message: '添加成功!'
+                            });
+                            this.pcDialogStates=false
+                            this.getList()
+                            this.pcAddOrEditLoading=false
+                        }else{
+                            return Promise.reject()
+                        }
+                    }).catch(_=>{
+                        this.$message({
+                            type: 'error',
+                            message: '添加失败!'
+                        });
+                        this.pcAddOrEditLoading=false
+                    })
+                }
+            },
+            pcHandleClose(){
+                this.pcDialogState=false
+            },
+            pcHandleCloses(){
+                this.pcDialogStates=false
             },
         }
     }
