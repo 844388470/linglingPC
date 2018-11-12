@@ -5,6 +5,7 @@ import App from './App'
 import {route} from './router'
 import store from '@/store'
 import plugin from '@/plugins'
+import "babel-polyfill";
 
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
