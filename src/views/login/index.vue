@@ -47,15 +47,15 @@ export default {
   name: 'login',
   data() {
     const validateUsername = (rule, value, callback) => {
-      if (value<6) {
-        callback(new Error('用户名不能小于6位'))
+      if (value<5) {
+        callback(new Error('用户名不能小于5位'))
       } else {
         callback()
       }
     }
     const validatePassword = (rule, value, callback) => {
-      if (value.length < 6) {
-        callback(new Error('密码不能小于6位'))
+      if (value.length < 5) {
+        callback(new Error('密码不能小于5位'))
       } else {
         callback()
       }
@@ -75,7 +75,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['setRouterList','setViewTagList','setIsLogin','setRoles','setToken']),
+    ...mapActions(['setRouterList','setViewTagList','setIsLogin','setRoles','setToken','setUser','setUserName']),
     showPwd() {
       if (this.pwdType === 'password') {
         this.pwdType = ''
@@ -109,18 +109,15 @@ export default {
 
           // console.log(this.loginForm)
           api.login({username:this.loginForm.username,password:this.loginForm.password}).then(res=>{
-            if(this.loginForm.username=='admin'&&this.loginForm.password=='admin123456'){
-              this.setRoles('admin')
-            }else{
-              this.setRoles('user')
-            }
             if(res.id){
-              this.setIsLogin(1)
+              this.setRoles(res.detail.role)
               this.setRouterList(routerlist.routes)
               this.setToken(res.token)
+              this.setUser(res.id)
+              this.setUserName(res.detail.username)
+              this.setIsLogin(1)
               this.$router.push('index')
             }
-            
           }).catch(err=>{
             Message.error('登录失败,账号或密码错误')
             console.log(err)
@@ -130,24 +127,6 @@ export default {
           return false
         }
       })
-    },
-    afterQRScan() {
-      // const hash = window.location.hash.slice(1)
-      // const hashObj = getQueryObject(hash)
-      // const originUrl = window.location.origin
-      // history.replaceState({}, '', originUrl)
-      // const codeMap = {
-      //   wechat: 'code',
-      //   tencent: 'code'
-      // }
-      // const codeName = hashObj[codeMap[this.auth_type]]
-      // if (!codeName) {
-      //   alert('第三方登录失败')
-      // } else {
-      //   this.$store.dispatch('LoginByThirdparty', codeName).then(() => {
-      //     this.$router.push({ path: '/' })
-      //   })
-      // }
     }
   },
   computed: {

@@ -52,7 +52,7 @@
                                     size="mini"
                                     @click="openDialog(true,scope.row)">编辑</el-button>
                                     <el-button
-                                    v-if="roles=='admin'"
+                                    v-if="[88,99].filter(res=>res==roles).length"
                                     size="mini"
                                     @click="deleteEqu(scope.row.id)">删除</el-button>
                                 </template>
@@ -79,29 +79,29 @@
             :before-close="handleClose">
             <div>
                 <label class="el-form-item__label">imei:</label>
-                <el-input v-model="imei" :disabled="!(roles=='admin' || !isEdit)"></el-input>
+                <el-input v-model="imei"></el-input>
                 <label class="el-form-item__label">iccid:</label>
-                <el-input v-model="iccid" :disabled="!(roles=='admin' || !isEdit)"></el-input>
+                <el-input v-model="iccid"></el-input>
                 <label class="el-form-item__label">type:</label>
-                <el-input v-model="type" :disabled="!(roles=='admin' || !isEdit)" v-if="roles=='admin'"></el-input>
-                <div style="width: 100%;display: inline-block;position: relative;"  v-if="roles!=='admin'&&types.indexOf('cs')!==-1">
+                <el-input v-model="type" v-if="[88,99].filter(res=>res==roles).length"></el-input>
+                <div style="width: 100%;display: inline-block;position: relative;"  v-if="[88,99].filter(res=>res==roles).length==0&&types.indexOf('cs')!==-1">
                     <el-radio v-model="type" label="D601testP2">D601</el-radio>
                     <el-radio v-model="type" label="D603testP2">D603</el-radio>
                     <el-radio v-model="type" label="D606test">D606</el-radio>
                     <el-radio v-model="type" label="D608test">D608</el-radio>
                 </div>
-                <div style="width: 100%;display: inline-block;position: relative;"  v-if="roles!=='admin'&&types.indexOf('zs')!==-1">
+                <div style="width: 100%;display: inline-block;position: relative;"  v-if="[88,99].filter(res=>res==roles).length==0&&types.indexOf('zs')!==-1">
                     <el-radio v-model="type" label="D601testP3">D601</el-radio>
                     <el-radio v-model="type" label="D603testP3">D603</el-radio>
                     <el-radio v-model="type" label="D606testP3">D606</el-radio>
                     <el-radio v-model="type" label="D608testP3">D608</el-radio>
                 </div>
-                <label class="el-form-item__label" v-if="roles=='admin'">model:</label>
-                <el-input v-model="model" :disabled="!(roles=='admin' || !isEdit)" v-if="roles=='admin'"></el-input>
+                <label class="el-form-item__label" v-if="[88,99].filter(res=>res==roles).length">model:</label>
+                <el-input v-model="model" v-if="[88,99].filter(res=>res==roles).length"></el-input>
             </div>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="handleClose">取 消</el-button>
-                <el-button type="primary" @click="confirmAdd" :disabled="!(roles=='admin' || !isEdit)" :loading="addOrEditLoading">确 定</el-button>
+                <el-button type="primary" @click="confirmAdd" :disabled="[0,1].filter(res=>res==roles).length!==0 && isEdit" :loading="addOrEditLoading">{{[0,1].filter(res=>res==roles).length!==0 && isEdit?'无修改权限':'确认'}}</el-button>
             </span>
         </el-dialog>
     </div>

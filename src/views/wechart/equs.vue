@@ -55,7 +55,7 @@
         </el-col>
     </el-row>
     <el-row :gutter="20" class="title">
-        <el-col :span="6" v-for="(item,index) in titleList" :key="index">
+        <el-col :span="6" v-for="(item,index) in titleList" :key="index" class="mb20">
             <el-card shadow="hover">
                 <el-row :gutter="20">
                     <el-col :span="6">
@@ -130,14 +130,26 @@ export default {
         },
         getEquCity(){
             api.getEquCity().then(res=>{
-                console.log(res)
+                // console.log(res)
             }).catch(err=>{
 
             })
         },
         getEquModel(){
             api.getEquModel().then(res=>{
-                this.titleList=res.model
+                let list=[],type=res.model
+                for(let i in type){
+                    if(list.filter(obj=>obj.model==type[i].model.substr(0,4)).length){
+                        list.filter(obj=>obj.model==type[i].model.substr(0,4))[0].count+=type[i].count
+                    }else{
+                        list.push({
+                            count:type[i].count,
+                            model:type[i].model.substr(0,4),
+                        })
+                    }
+                }
+                
+                this.titleList=list
             }).catch(err=>{
 
             })

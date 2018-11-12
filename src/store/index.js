@@ -8,6 +8,8 @@ let state = {
   loading: false,
   routerList: sessionStorage['routerList'] ? JSON.parse(sessionStorage['routerList']) : [],
   roles:sessionStorage['roles'] ? sessionStorage['roles'] : '',
+  user:sessionStorage['user'] ? sessionStorage['user'] : '',
+  userName:sessionStorage['userName'] ? sessionStorage['userName'] : '',
   token:sessionStorage['token'] ? sessionStorage['token'] : '',
   viewTagList:sessionStorage['viewTagList'] ? JSON.parse(sessionStorage['viewTagList']) : [],     //tab标签
   isLogin:sessionStorage['isLogin'] ? sessionStorage['isLogin'] : 0
@@ -31,6 +33,12 @@ let actions = {
   },
   setRoles({ commit }, info) {
     commit('SET_ROLES', info)
+  },
+  setUser({ commit }, info) {
+    commit('SET_USER', info)
+  },
+  setUserName({ commit }, info) {
+    commit('SET_USERNAME', info)
   },
   setToken({ commit }, info) {
     commit('SET_TOKEN', info)
@@ -57,6 +65,14 @@ let mutations = {
     sessionStorage['roles'] = info
     state.roles = info
   },
+  SET_USER(state,info){
+    sessionStorage['user'] = info
+    state.user = info
+  },
+  SET_USERNAME(state,info){
+    sessionStorage['userName'] = info
+    state.userName = info
+  },
   SET_TOKEN(state,info){
     sessionStorage['token'] = info
     state.token = info
@@ -68,6 +84,8 @@ let getters = {
   viewTagList: state => state.viewTagList,
   isLogin:  state => state.isLogin,
   roles:  state => state.roles,
+  user:  state => state.user,
+  userName:  state => state.userName,
   token:  state => state.token,
 }
 

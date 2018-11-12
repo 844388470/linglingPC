@@ -8,7 +8,7 @@
                 <el-col :span="16">
                       <el-button @click="filterSearch">查找</el-button>
                       <el-button @click="changeindex(1)">刷新</el-button>
-                      <el-button @click="openDialog(false)" v-if="roles=='admin'">添加</el-button>
+                      <el-button @click="openDialog(false)" v-if="[88,99].filter(res=>res==roles).length">添加</el-button>
                 </el-col>
             </el-row>
         </el-card>
@@ -57,7 +57,7 @@
                                     size="mini"
                                     @click="openDialog(true,scope.row)">编辑</el-button>
                                     <el-button
-                                    v-if="roles=='admin'"
+                                    v-if="[88,99].filter(res=>res==roles).length"
                                     size="mini"
                                     @click="deleteEqu(scope.row.id)">删除</el-button>
                                 </template>
@@ -84,25 +84,25 @@
             :before-close="handleClose">
             <div>
                 <label class="el-form-item__label">imei:</label>
-                <el-input v-model="imei" :disabled="!(roles=='admin' || !isEdit)"></el-input>
+                <el-input v-model="imei"></el-input>
                 <label class="el-form-item__label">imsi:</label>
-                <el-input v-model="imsi" :disabled="!(roles=='admin' || !isEdit)"></el-input>
+                <el-input v-model="imsi"></el-input>
                 <label class="el-form-item__label" v-if="isEdit">电信id:</label>
-                <el-input  v-if="isEdit" v-model="device_id" :disabled="!(roles=='admin' || !isEdit)"></el-input>
+                <el-input  v-if="isEdit" v-model="device_id" :disabled="isEdit"></el-input>
                 <label class="el-form-item__label">绑定模式:</label>
                 <div style="width: 100%;display: inline-block;position: relative;">
-                    <el-radio v-model="bind_mode" label="1" :disabled="!(roles=='admin' || !isEdit)">允许任何人</el-radio>
-                    <el-radio v-model="bind_mode" label="0" :disabled="!(roles=='admin' || !isEdit)">管理员审核</el-radio>
-                    <el-radio v-model="bind_mode" label="2" :disabled="!(roles=='admin' || !isEdit)">拒绝任何人</el-radio>
+                    <el-radio v-model="bind_mode" label="1">允许任何人</el-radio>
+                    <el-radio v-model="bind_mode" label="0">管理员审核</el-radio>
+                    <el-radio v-model="bind_mode" label="2">拒绝任何人</el-radio>
                 </div>
                 <label class="el-form-item__label">设备类型:</label>
-                <el-input  v-model="model" :disabled="!(roles=='admin' || !isEdit)"></el-input>
+                <el-input  v-model="model"></el-input>
                 <label class="el-form-item__label">设备名称:</label>
-                <el-input  v-model="name" :disabled="!(roles=='admin' || !isEdit)"></el-input>
+                <el-input  v-model="name"></el-input>
             </div>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="handleClose">取 消</el-button>
-                <el-button type="primary" @click="confirmAdd" :disabled="!(roles=='admin' || !isEdit)" :loading="addOrEditLoading">确 定</el-button>
+                <el-button type="primary" @click="confirmAdd" :disabled="[0,1].filter(res=>res==roles).length!==0 && isEdit" :loading="addOrEditLoading">{{[0,1].filter(res=>res==roles).length!==0 && isEdit?'无修改权限':'确认'}}</el-button>
             </span>
         </el-dialog>
     </div>

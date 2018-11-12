@@ -5,16 +5,26 @@
                 <el-col :span="4">
                     <el-input v-model="search" placeholder="请输入昵称"></el-input>
                 </el-col>
+                <el-col :span="4">
+                    <el-select v-model="searchRoles" placeholder="请选择角色">
+                        <el-option
+                            v-for="item in [...rolesList]"
+                            :key="item.id"
+                            :label="item.name"
+                            :value="item.id">
+                        </el-option>
+                    </el-select>
+                </el-col>
                 <el-col :span="16">
                       <el-button @click="filterSearch">查找</el-button>
                       <el-button @click="changeindex(1)">刷新</el-button>
-                      <el-button v-if="roles=='admin'" @click="openDialogs(false)">注册</el-button>
+                      <el-button @click="openDialogs(false)">注册</el-button>
                 </el-col>
             </el-row>
         </el-card>
         <el-card shadow="always" :style="'height:'+windowHeight+'px'">
             <div :style="{height:windowHeight-40+'px',overflow:'hidden' }">
-                <el-scrollbar :style="{height:windowHeight-23+'px' }">
+                <el-scrollbar :style="{height:windowHeight-23+'px' }" ref="scroll">
                     <div style="overflow:hidden;">
                         <el-table
                             :data="listxian"
@@ -27,14 +37,17 @@
                                 prop="username"
                                 label="登录账号">
                             </el-table-column>
-                            <el-table-column label="id">
+                            <el-table-column 
+                                label="id">
                                 <template slot-scope="scope">
                                     {{scope.row.id}}
                                 </template>
                             </el-table-column>
                             <el-table-column
-                                prop="phone"
-                                label="电话">
+                                label="角色">
+                                <template slot-scope="scope">
+                                    {{rolesList.filter(res=>scope.row.role==res.id).length?rolesList.filter(res=>scope.row.role==res.id)[0].name : ''}}
+                                </template>
                             </el-table-column>
                             <!-- <el-table-column
                                 prop="height"
@@ -50,16 +63,16 @@
                                     size="mini"
                                     @click="openDialog(scope.row.id)">查看绑定记录</el-button>
                                     <el-button
-                                    v-if="roles=='admin'"
                                     size="mini"
+                                    v-if="scope.row.id==user||(adminRoles==99&&scope.row.role!==99)||(adminRoles==88&&scope.row.role!==99&&scope.row.role!==88)"
                                     @click="openDialogs(true,scope.row)">编辑</el-button>
                                     <el-button
-                                    v-if="roles=='admin'"
                                     size="mini"
+                                    v-if="scope.row.id==user||(adminRoles==99&&scope.row.role!==99)||(adminRoles==88&&scope.row.role!==99&&scope.row.role!==88)"
                                     @click="pcOpenDialogs(true,scope.row)">修改登录</el-button>
                                     <el-button
-                                    v-if="roles=='admin'"
                                     size="mini"
+                                    v-if="scope.row.id==user||(adminRoles==99&&scope.row.role!==99)||(adminRoles==88&&scope.row.role!==99&&scope.row.role!==88)"
                                     @click="deleteUser(scope.row.id)">删除</el-button>
                                 </template>
                             </el-table-column>
@@ -74,7 +87,7 @@
                 :current-page.sync="page.index"
                 :page-size="page.size"
                 layout="total, prev, pager, next ,jumper"
-                :disabled="search?true:false"
+                :disabled="search||searchRoles===0||searchRoles?true:false"
                 :total="page.total">
             </el-pagination>
         </el-card>
@@ -110,7 +123,6 @@
                             <el-table-column label="操作">
                                 <template slot-scope="scope">
                                     <el-button
-                                    v-if="scope.row.status==3"
                                     size="mini"
                                     @click="deleteBindRecord(scope.row.id)">删除</el-button>
                                 </template>
@@ -129,37 +141,49 @@
                 <el-row :gutter="20">
                     <el-col :span="12">
                         <label class="el-form-item__label">昵称:</label>
-                        <el-input v-model="nickname" :disabled="!(roles=='admin' || !isEdit)"></el-input>
+                        <el-input v-model="nickname"></el-input>
                     </el-col>
                     <el-col :span="12">
                         <label class="el-form-item__label">姓名:</label>
-                        <el-input v-model="name" :disabled="!(roles=='admin' || !isEdit)"></el-input>
+                        <el-input v-model="name"></el-input>
                     </el-col>
                     <el-col :span="12">
                         <label class="el-form-item__label">电话:</label>
-                        <el-input v-model="phone" :disabled="!(roles=='admin' || !isEdit)"></el-input>
+                        <el-input v-model="phone"></el-input>
                     </el-col>
                     <el-col :span="12">
                         <label class="el-form-item__label">邮箱:</label>
-                        <el-input v-model="email" :disabled="!(roles=='admin' || !isEdit)"></el-input>
+                        <el-input v-model="email"></el-input>
                     </el-col>
                     <el-col :span="12">
                         <label class="el-form-item__label">身高(m):</label>
-                        <el-input v-model="height" :disabled="!(roles=='admin' || !isEdit)"></el-input>
+                        <el-input v-model="height"></el-input>
                     </el-col>
                     <el-col :span="12">
                         <label class="el-form-item__label">体重(kg):</label>
-                        <el-input v-model="weight" :disabled="!(roles=='admin' || !isEdit)"></el-input>
+                        <el-input v-model="weight"></el-input>
                     </el-col>
                     <el-col :span="12">
                         <label class="el-form-item__label">运动目标(步):</label>
-                        <el-input v-model="sport_target" :disabled="!(roles=='admin' || !isEdit)"></el-input>
+                        <el-input v-model="sport_target"></el-input>
+                    </el-col>
+                    <el-col :span="12">
+                        <label class="el-form-item__label">角色:</label>
+                        <el-select v-model="roles" placeholder="请选择">
+                            <el-option
+                            v-for="item in rolesList"
+                            :key="item.id"
+                            :label="item.name"
+                            :value="item.id"
+                            :disabled="item.id==99&&Number(adminRoles)!==99">
+                            </el-option>
+                        </el-select>
                     </el-col>
                 </el-row>
             </div>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="handleCloses">取 消</el-button>
-                <el-button type="primary" @click="confirmAdd" :disabled="!(roles=='admin' || !isEdit)" :loading="addOrEditLoading">确 定</el-button>
+                <el-button type="primary" @click="confirmAdd" :loading="addOrEditLoading">确 定</el-button>
             </span>
         </el-dialog>
         <el-dialog
@@ -171,17 +195,17 @@
                 <el-row :gutter="20">
                     <el-col :span="24">
                         <label class="el-form-item__label">账号:</label>
-                        <el-input v-model="username" :disabled="!(roles=='admin' || !pcIsEdit)"></el-input>
+                        <el-input v-model="username"></el-input>
                     </el-col>
                     <el-col :span="24">
                         <label class="el-form-item__label">密码:</label>
-                        <el-input v-model="password" :disabled="!(roles=='admin' || !pcIsEdit)"></el-input>
+                        <el-input v-model="password"></el-input>
                     </el-col>
                 </el-row>
             </div>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="pcHandleCloses">取 消</el-button>
-                <el-button type="primary" @click="pcConfirmAdd" :disabled="!(roles=='admin' || !pcIsEdit)" :loading="pcAddOrEditLoading">确 定</el-button>
+                <el-button type="primary" @click="pcConfirmAdd" :loading="pcAddOrEditLoading">确 定</el-button>
             </span>
         </el-dialog>
     </div>
@@ -189,14 +213,18 @@
 <script>
     import api from '@/api/wechart/index'
     import mixin from '@/mixins/index'
+    import {mapState} from 'vuex'
     export default{
         name:'wechartUser',
         mixins:[mixin],
+        computed:{
+            ...mapState({user:'user',adminRoles:'roles'})
+        },
         data(){
             return {
                 username:'',
                 password:'',
-                roles:this.$store.getters.roles,
+                // adminRoles:this.$store.getters.roles,
                 windowHeight:0,
                 list:[],
                 listLoading:false,
@@ -204,12 +232,14 @@
                 pcAddOrEditLoading:false,
                 listxian:[],
                 search:'',
+                searchRoles:'',
                 name:'',
                 nickname:'',
                 phone:'',
                 email:'',
                 height:'',
                 weight:'',
+                roles:-1,
                 sport_target:'',
                 dialogState:false,
                 dialogStates:false,
@@ -219,18 +249,27 @@
                 editId:-1,
                 pcEditId:-1,
                 id:-1,
-                bindList:[],
+                bindList:[],    
                 bindListLoading:false,
+                rolesList:[
+                    {id:0,name:'小程序用户'},
+                    {id:1,name:'普通用户'},
+                    {id:88,name:'管理员'},
+                    {id:99,name:'超级管理员'},
+                ]
             }
         },
         mounted(){
+            console.log(this.adminRoles)
             this.windowHeight=document.body.offsetHeight-330
             this.getList()
         },
         methods:{
             getList(){
                 this.search=''
+                this.searchRoles=''
                 this.listLoading=true
+                this.rollBack('scroll')
                 api.getUsersListPagination({pageSize:this.page.size,offset:this.page.index-1}).then(_=>{
                     if(Array.isArray(_.data)){
                         this.list=_.data
@@ -261,10 +300,11 @@
             },
             filterSearch(){
                 this.listLoading=true
-                api.getUsersList(this.search).then(_=>{
+                api.getUsersList({nickname:this.search,role:this.searchRoles}).then(_=>{
                     if(Array.isArray(_)){
                         this.listxian=_
                         this.page.total=_.length
+                        // this.page.size=_.length
                     }else{
                         this.$message.error('查找失败');
                     }
@@ -289,6 +329,7 @@
                     this.weight=obj.weight
                     this.sport_target=obj.sport_target
                     this.editId=obj.id
+                    this.roles=obj.role
                 }else{
                     this.name=''
                     this.nickname=''
@@ -297,72 +338,48 @@
                     this.height=''
                     this.weight=''
                     this.sport_target=''
+                    this.roles=1
                     this.editId=-1
                 }
                 this.isEdit=state
                 this.dialogStates=true
             },
-            confirmAdd(){
+            async confirmAdd(){
+                let data={
+                    'name':this.name,
+                    'nickname':this.nickname,
+                    'phone':this.phone,
+                    'email':this.email,
+                    'height':this.height,
+                    'weight':this.weight,
+                    'sport_target':this.sport_target,
+                    'role':this.roles
+                }
+                this.addOrEditLoading=true
+                let res=null
                 if(this.isEdit){
-                    let data={
-                        'name':this.name,
-                        'nickname':this.nickname,
-                        'phone':this.phone,
-                        'email':this.email,
-                        'height':this.height,
-                        'weight':this.weight,
-                        'sport_target':this.sport_target
-                    }
-                    this.addOrEditLoading=true
-                    api.userEdit(this.editId,data).then(_=>{
-                        if(_.affectedRows){
-                            this.$message({
-                                type: 'success',
-                                message: '修改成功!'
-                            });
-                            this.dialogStates=false
-                            this.getList()
-                            this.addOrEditLoading=false
-                        }else{
-                            return Promise.reject()
-                        }
-                    }).catch(_=>{
-                        this.$message({
-                            type: 'error',
-                            message: '修改失败!'
-                        });
-                        this.addOrEditLoading=false
+                    res=await api.userEdit(this.editId,data).catch(_=>{
+                        
                     })
                 }else{
-                    let data={
-                        'name':this.name,
-                        'nickname':this.nickname,
-                        'phone':this.phone,
-                        'email':this.email,
-                        'height':this.height,
-                        'weight':this.weight,
-                        'sport_target':this.sport_target
-                    }
-                    this.addOrEditLoading=true
-                    api.userAdd(data).then(_=>{
-                        if(_.id){
-                            this.$message({
-                                type: 'success',
-                                message: '添加成功!'
-                            });
-                            this.dialogStates=false
-                            this.getList()
-                            this.addOrEditLoading=false
-                        }else{
-                            return Promise.reject()
-                        }
-                    }).catch(_=>{
-                        this.$message({
-                            type: 'error',
-                            message: '添加失败!'
-                        });
-                        this.addOrEditLoading=false
+                    res=await api.userAdd(data).catch(_=>{
+                        
                     })
+                }
+                if(res&&(res.affectedRows||res.id)){
+                    this.$message({
+                        type: 'success',
+                        message: `${this.isEdit?'修改成功':'添加成功'}`
+                    });
+                    this.dialogStates=false
+                    this.getList()
+                    this.addOrEditLoading=false
+                }else{
+                    this.$message({
+                        type: 'error',
+                        message: `${this.isEdit?'修改失败':'添加失败'}`
+                    });
+                    this.addOrEditLoading=false
                 }
             },
             deleteBindRecord(id){

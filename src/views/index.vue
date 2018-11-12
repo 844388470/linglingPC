@@ -4,14 +4,14 @@
     <div class="sidebar" :style="{width:sidebarWidth,'overflow':'auto'}">
       <el-menu :default-active="$route.path" class="el-menu-vertical-demo" text-color="#fff" active-text-color="rgb(64, 158, 255)" background-color="#304156" :collapse="isCollapse">
           <template v-for="(item,index) in routerList">
-            <router-link v-if="item.children && item.radius && item.children.length===1  && !item.children[0].children" :to="item.path+'/'+item.children[0].path" :key="item.name">
+            <router-link v-if="item.children && item.radius && item.children.length===1  && !item.children[0].children && item.roles.filter(res=>res==roles).length" :to="item.path+'/'+item.children[0].path" :key="item.name">
               <el-menu-item :index="item.path+'/'+item.children[0].path" class='submenu-title-noDropdown'>
                 <i :class="'icon iconfont icon-'+item.icon"></i>
                 <span slot="title">{{item.children[0].name}}</span>
               </el-menu-item>
             </router-link>
 
-            <el-submenu v-if="item.children&& item.radius && (item.children.length!==1 || (item.children.length===1 && item.children[0].children))" :index="item.path" :key="item.name">
+            <el-submenu v-if="item.children&& item.radius && (item.children.length!==1 || (item.children.length===1 && item.children[0].children)) && item.roles.filter(res=>res==roles).length" :index="item.path" :key="item.name">
               <template slot="title">
                 <i :class="'icon iconfont icon-'+item.icon"></i>
                 <span slot="title">{{item.name}}</span>
@@ -19,14 +19,14 @@
 
               <template v-for="child in item.children">
 
-                <el-submenu v-if="child.radius && child.children && child.children.length>0" :index="item.path+'/'+child.path" :key="child.name">
+                <el-submenu v-if="child.radius && child.children && child.children.length>0 && child.roles.filter(res=>res==roles).length" :index="item.path+'/'+child.path" :key="child.name">
                   <template slot="title">
                     <i :class="'icon iconfont icon-'+child.icon"></i>
                     <span slot="title">{{child.name}}</span>
                   </template>
 
                   <template v-for="son in child.children">
-                    <router-link :to="item.path+'/'+child.path+'/'+son.path" :key="son.name" v-if="son.radius">
+                    <router-link :to="item.path+'/'+child.path+'/'+son.path" :key="son.name" v-if="son.radius && son.roles.filter(res=>res==roles).length">
                       <el-menu-item :index="item.path+'/'+child.path+'/'+son.path">
                         <i :class="son.icon"></i>
                         <span slot="title">{{son.name}}</span>
@@ -35,7 +35,7 @@
                   </template>
                 </el-submenu>
 
-                <router-link v-if="child.radius && (!child.children || (child.children&&child.children.length==0))" :to="item.path+'/'+child.path" :key="child.name">
+                <router-link v-if="child.radius && (!child.children || (child.children&&child.children.length==0))&& child.roles.filter(res=>res==roles).length" :to="item.path+'/'+child.path" :key="child.name">
                   <el-menu-item :index="item.path+'/'+child.path" >
                     <i :class="child.icon"></i>
                     <span slot="title">{{child.name}}</span>
@@ -76,8 +76,7 @@
       <el-dialog
           class="editpass"
           :visible.sync="editpassstate"
-          width="400px"
-          fullscreen
+          width="30%"
           center>
               <div style="height:100%">
                   <el-scrollbar style="height:100%;" ref="scrollbar">
@@ -86,7 +85,7 @@
                               <el-row :gutter="20" style="margin-left:0;margin-right:0;">
                                   <el-col :span="24">
                                       <el-form-item label="旧密码" prop="old_password">
-                                          <el-input  v-model="passform.old_password" placeholder="旧密码"></el-input>
+                                          <el-input type="password" v-model="passform.old_password" placeholder="旧密码"></el-input>
                                       </el-form-item>
                                   </el-col>
                                   <el-col :span="24">
@@ -127,7 +126,8 @@
 
 <script>
 import { mapState, mapGetters, mapActions } from "vuex";
-// import * as api from "@/api/login";
+import api from '@/api/login/index';
+import axios from 'axios'
 export default {
   name: "index",
   data() {
@@ -142,9 +142,9 @@ export default {
         confirm: ""
       },
       passformrules: {
-        old_password: [{ required: true, message: "请输入旧密码" }],
-        password: [{ required: true, message: "请输入新密码" }],
-        confirm: [{ required: true, message: "请再次输入新密码" }]
+        old_password: [{ required: true, message: "请输入旧密码" },{ required: true, min: 5,  message: "最低长度为5" }],
+        password: [{ required: true, message: "请输入新密码" },{ required: true, min: 5,  message: "最低长度为5" }],
+        confirm: [{ required: true, message: "请再次输入新密码" },{ required: true, min: 5,  message: "最低长度为5" }]
       }
     };
   },
@@ -154,7 +154,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(["setViewTagList"]),
+    ...mapActions(["setViewTagList","setToken"]),
     //导航栏跳转
     pushRouter(val) {
       if (this.viewTagList.filter(t => t.path == val.path).length == 0) {
@@ -195,22 +195,45 @@ export default {
       }).catch(_ => {});
     },
     editpassword() {
-      this.$refs["passform"].validate(valid => {
+      this.$refs["passform"].validate(async valid => {
         if (valid) {
           if (this.passform.password !== this.passform.confirm) {
             this.$message({
               message: "重复新密码不正确",
               type: "warning"
             });
-            return;
+            return
           }
-          // api.editpassword(this.passform).then(res => {
-          //     this.editpassstate = false;
-          //     this.$message({
-          //       message: "修改成功",
-          //       type: "success"
-          //     });
-          //   }).catch(() => {});
+          let res=await api.login({username:this.$store.getters.userName,password:this.passform.old_password}).catch(err=>{
+            if(err.statusCode==400){
+              this.$message.error('旧密码错误,请重试')
+            }else{
+              this.$message.error('验证失败,请重试')
+            }
+          })
+          if(res&&res.token){
+            this.setToken(res.token)
+            axios.defaults.headers['jwt'] = sessionStorage['token']
+            api.userEdit(this.$store.getters.user,{
+                'username':this.$store.getters.userName,
+                'password':this.passform.password
+            }).then(_=>{
+                if(_.affectedRows){
+                    this.$message({
+                        type: 'success',
+                        message: '修改成功!'
+                    });
+                    this.editpassstate=false
+                }else{
+                    return Promise.reject()
+                }
+            }).catch(_=>{
+                this.$message({
+                    type: 'error',
+                    message: '修改失败!'
+                });
+            })
+          }
         } else {
           return false;
         }
@@ -238,8 +261,8 @@ export default {
     }
   },
   computed: {
-    ...mapState(["loading", "routerList", "viewTagList"]),
-    ...mapGetters(["loading", "routerList", "viewTagList"]),
+    ...mapState(["loading", "routerList", "viewTagList","roles"]),
+    // ...mapGetters(["loading", "routerList", "viewTagList"]),
     viewTagKeep(){
       let arr=[]
       for(let i in this.viewTagList){

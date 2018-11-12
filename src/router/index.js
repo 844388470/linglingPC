@@ -15,9 +15,10 @@ const list={
         path: '/index',
         component: _import('index'),
         radius:true,
+        roles:[0,1,88,99],
         redirect: '/index/index',
         icon: 'shouye',
-        children: [{path: 'index',name:'首页',radius:true,component: () =>import('@/views/wechart/users'),meta: { keep:'homepage' }}]
+        children: [{path: 'index',name:'首页',radius:true,roles:[0,1,88,99],component: () =>import('@/views/wechart/users'),meta: { keep:'users' }}]
       },
       // {
       //   path: '/EquMonit',
@@ -97,27 +98,29 @@ const list={
         path: '/wechart',
         name: '设备管理',
         radius:true,
+        roles:[0,1,88,99],
         component: _import('index'),
         icon: 'chanpinguanli',
         redirect: '/wechart/zhuche',
         children: [
-          {path: 'zhuche',name: '设备导入表',component:() => import('@/views/wechart/zhuche') ,meta: { keep: 'zhuche' },radius:true,},
-          {path: 'jihuo',name: '已激活设备',component: () =>import('@/views/wechart/jihuo'),meta: { keep: 'jihuo' },radius:true,},
-          {path: 'history',name: '设备轨迹',component: () =>import('@/views/wechart/history'),meta: { keep: 'history' },radius:true,},
-          {path: 'location',name: '设备定位',component: () =>import('@/views/wechart/location'),meta: { keep: 'location' },radius:true,},
-          // {path: 'wechartUser',name: '小程序用户',component: () =>import('@/views/wechart/wechartUser'),meta: { keep: 'wechartUser' },radius:true,},
+          {path: 'zhuche',name: '设备导入表',component:() => import('@/views/wechart/zhuche') ,meta: { keep: 'zhuche' },radius:true,roles:[0,1,88,99],},
+          {path: 'jihuo',name: '已激活设备',component: () =>import('@/views/wechart/jihuo'),meta: { keep: 'jihuo' },radius:true,roles:[0,1,88,99],},
+          {path: 'history',name: '设备轨迹',component: () =>import('@/views/wechart/history'),meta: { keep: 'history' },radius:true,roles:[0,1,88,99],},
+          {path: 'location',name: '设备定位',component: () =>import('@/views/wechart/location'),meta: { keep: 'location' },radius:true,roles:[0,1,88,99],},
+          // {path: 'wechartUser',name: '小程序用户',component: () =>import('@/views/wechart/wechartUser'),meta: { keep: 'wechartUser' },radius:true,roles:[0,1,88,99],},
         ]
       },
       {
         path: '/UserManagement',
         name: '用户管理',
         radius:true,
+        roles:[88,99],
         component: _import('index'),
         icon: 'denglu',
         redirect: '/UserManagement/wechartUser',
         children: [
-          {path: 'wechartUser',name: '用户',component: () =>import('@/views/wechart/wechartUser'),meta: { keep: 'wechartUser' },radius:true,},
-          // {path: 'user',name: '系统用户',component: () =>import('@/views/wechart/user'),meta: { keep: 'user' },radius:true,},
+          {path: 'wechartUser',name: '用户',component: () =>import('@/views/wechart/wechartUser'),meta: { keep: 'wechartUser' },radius:true,roles:[0,1,88,99],},
+          // {path: 'user',name: '系统用户',component: () =>import('@/views/wechart/user'),meta: { keep: 'user' },radius:true,roles:[0,1,88,99],},
           {path: 'wxUserDetails',name: '微信用户详情',component: _import('menu4/menu4'),meta: { index: '4' },radius:false,},
         ]
       },
@@ -125,12 +128,13 @@ const list={
         path: '/Statistics',
         name: '统计',
         radius:true,
+        roles:[0,1,88,99],
         component: _import('index'),
         icon: 'caidan',
         redirect: '/Statistics/users',
         children: [
-          {path: 'users',name: '用户统计',component: () =>import('@/views/wechart/users'),meta: { keep: 'users' },radius:true,},
-          {path: 'equs',name: '设备统计',component: () =>import('@/views/wechart/equs'),meta: { keep: 'equs' },radius:true,},
+          // {path: 'users',name: '用户统计',component: () =>import('@/views/wechart/users'),meta: { keep: 'users' },radius:true,roles:[0,1,88,99],},
+          {path: 'equs',name: '设备统计',component: () =>import('@/views/wechart/equs'),meta: { keep: 'equs' },radius:true,roles:[0,1,88,99],},
         ]
       },
       {path:'/home',redirect:'/'},

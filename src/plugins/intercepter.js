@@ -77,6 +77,7 @@ export default (Vue) => {
     //   console.log(error)
     // }
     // Message.error('呀呀呀，系统出错了')
-    return Promise.reject(error)
+    console.log(error,JSON.parse(JSON.stringify(error)))
+    return Promise.reject(error.response.data)
   })
 }

@@ -46,9 +46,24 @@ const equDelete=(id)=>(
     axios.delete('/devices/'+id)
 )
 
-const getUsersList = (nickname) => (
-    axios.get(`/users?nickname=${nickname}`)
-)
+const getUsersList = (obj) => {
+    let data={}
+    for(let i in obj){
+        if(obj[i]===0||obj[i]){
+            data[i]=obj[i]
+        }
+    }
+    if(JSON.stringify(data)=='{}'){
+        data={
+            nickname:''
+        }
+    }
+    return axios.get(`/users`,{
+        params:{
+            ...data
+        }
+    })
+}
 
 const getUsersListPagination = (data) => (
     axios.post('/users/pagination',data)
