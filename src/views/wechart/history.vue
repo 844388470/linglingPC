@@ -26,7 +26,7 @@
 
                 <el-col :span="6">
                       <el-button @click="getHistory" :disabled="listLoading">查找</el-button>
-                      <el-button @click="getList">刷新</el-button>
+                      <!-- <el-button @click="getList">刷新</el-button> -->
                       <!-- <el-button @click="">删除</el-button>
                       <el-button @click="">123</el-button> -->
                 </el-col>
@@ -41,8 +41,12 @@
 </template>
 <script>
     import api from '@/api/wechart/index'
+    import {mapState} from 'vuex'
     export default{
         name:'history',
+        computed:{
+            ...mapState({user:'user',adminRoles:'roles'})
+        },
         data(){
             return {
                 roles:this.$store.getters.roles,
@@ -98,10 +102,33 @@
                     this.$message.warning('输入有误');
                     return
                 }
-                const objList=await api.getEquList(this.id).catch(_=>{
-                    this.$message.error('查找设备失败');
-                    return []
-                })
+                let objList=[]
+                if([0,1].indexOf(Number(this.adminRoles))!==-1){
+                    await api.getGroupList({user_id:this.user}).then(async res=>{
+                        if(res.length){
+                            await api.getEquListPagination({
+                                pageSize:50,
+                                offset:0,
+                                columns:[
+                                    {name:'group_id',value:res[0].id},
+                                    {name:'imei',value:this.id}]
+                            }).then(_=>{
+                                if(Array.isArray(_.data)){
+                                    objList=_.data
+                                }
+                            }).catch(_=>{
+                                this.$message.error('查找设备失败');
+                            })
+                        }
+                    }).catch(err=>{
+                        this.$message.error('查找设备失败');
+                    })
+                }else{
+                    objList=await api.getEquList(this.id).catch(_=>{
+                        this.$message.error('查找设备失败');
+                        return []
+                    })
+                }
                 if(objList.length===0){
                     return this.$message.error('该设备不存在');
                 }

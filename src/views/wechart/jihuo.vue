@@ -7,7 +7,7 @@
                 </el-col>
                 <el-col :span="16">
                       <el-button @click="filterSearch">查找</el-button>
-                      <el-button @click="changeindex(1)">刷新</el-button>
+                      <el-button @click="refresh">刷新</el-button>
                       <el-button @click="openDialog(false)" v-if="[88,99].filter(res=>res==roles).length">添加</el-button>
                 </el-col>
             </el-row>
@@ -41,15 +41,16 @@
                             <el-table-column label="绑定设置">
                                 <template slot-scope="scope">
                                     {{scope.row.bind_mode===0?'管理员确认':scope.row.bind_mode===1?'允许任何人':'拒绝任何人'}}
-                                    <el-button
+                                    <!-- <el-button
                                     v-if="scope.row.bind_mode!==1"
                                     size="mini"
-                                    @click="changeBindModel(scope.row.id)">切换</el-button>
+                                    @click="changeBindModel(scope.row.id)">切换</el-button> -->
                                 </template>
                             </el-table-column>
-                            <el-table-column
-                                prop="create_date"
-                                label="创建日期">
+                            <el-table-column :label="[0,1].filter(res=>res==roles).length!==0?'更新时间':'归属分组'">
+                                <template slot-scope="scope">
+                                    {{[0,1].filter(res=>res==roles).length!==0?scope.row.update_date:scope.row.group_id}}
+                                </template>
                             </el-table-column>
                             <el-table-column label="操作">
                                 <template slot-scope="scope">
@@ -84,7 +85,7 @@
             :before-close="handleClose">
             <div>
                 <label class="el-form-item__label">imei:</label>
-                <el-input v-model="imei"></el-input>
+                <el-input v-model="imei" :disabled="[0,1].filter(res=>res==roles).length!==0"></el-input>
                 <label class="el-form-item__label">imsi:</label>
                 <el-input v-model="imsi"></el-input>
                 <label class="el-form-item__label" v-if="isEdit">电信id:</label>
@@ -92,17 +93,20 @@
                 <label class="el-form-item__label">绑定模式:</label>
                 <div style="width: 100%;display: inline-block;position: relative;">
                     <el-radio v-model="bind_mode" label="1">允许任何人</el-radio>
-                    <el-radio v-model="bind_mode" label="0">管理员审核</el-radio>
+                    <el-radio v-model="bind_mode" label="0" v-if="[0,1].filter(res=>res==roles).length===0">管理员审核</el-radio>
                     <el-radio v-model="bind_mode" label="2">拒绝任何人</el-radio>
                 </div>
-                <label class="el-form-item__label">设备类型:</label>
-                <el-input  v-model="model"></el-input>
+                <label class="el-form-item__label" v-if="[0,1].filter(res=>res==roles).length===0">设备类型:</label>
+                <el-input  v-model="model" v-if="[0,1].filter(res=>res==roles).length===0"></el-input>
                 <label class="el-form-item__label">设备名称:</label>
                 <el-input  v-model="name"></el-input>
+                <label class="el-form-item__label"  v-if="[88,99].filter(res=>res==roles).length!==0">归属分组:</label>
+                <el-input  v-model="group_id"  v-if="[88,99].filter(res=>res==roles).length!==0"></el-input>
             </div>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="handleClose">取 消</el-button>
-                <el-button type="primary" @click="confirmAdd" :disabled="[0,1].filter(res=>res==roles).length!==0 && isEdit" :loading="addOrEditLoading">{{[0,1].filter(res=>res==roles).length!==0 && isEdit?'无修改权限':'确认'}}</el-button>
+                <!-- <el-button type="primary" @click="confirmAdd" :disabled="[0,1].filter(res=>res==roles).length!==0 && isEdit" :loading="addOrEditLoading">{{[0,1].filter(res=>res==roles).length!==0 && isEdit?'无修改权限':'确认'}}</el-button> -->
+                <el-button type="primary" @click="confirmAdd"  :loading="addOrEditLoading">{{'确认'}}</el-button>
             </span>
         </el-dialog>
     </div>
@@ -110,9 +114,13 @@
 <script>
     import api from '@/api/wechart/index'
     import mixin from '@/mixins/index'
+    import {mapState} from 'vuex'
     export default{
         name:'jihuo',
         mixins:[mixin],
+        computed:{
+            ...mapState({user:'user',adminRoles:'roles'})
+        },
         data(){
             return {
                 roles:this.$store.getters.roles,
@@ -126,11 +134,13 @@
                 imsi:'',
                 device_id:'',
                 bind_mode:'',
+                group_id:'',
                 model:'',
                 name:'',
                 dialogState:false,
                 isEdit:false,
-                editId:-1
+                editId:-1,
+                group_id:0
             }
         },
         mounted(){
@@ -138,10 +148,49 @@
             this.getList()
         },
         methods:{
-            getList(){
-                this.search=''
+            getGroupList(){
                 this.listLoading=true
-                api.getEquListPagination({pageSize:this.page.size,offset:this.page.index-1}).then(_=>{
+                api.getGroupList({user_id:this.user}).then(res=>{
+                    if(res.length){
+                        api.getEquListPagination({
+                            pageSize:this.page.size,
+                            offset:this.page.index-1,
+                            columns:this.search?[
+                                {name:'group_id',value:res[0].id},
+                                {name:'imei',value:this.search}
+                            ]:[{name:'group_id',value:res[0].id},]
+                        }).then(_=>{
+                            if(Array.isArray(_.data)){
+                                this.list=_.data
+                                this.listxian=_.data
+                                this.page.total=_.page.count
+                            }else{
+                                this.$message.error('获取列表失败');
+                            }
+                            this.listLoading=false
+                        }).catch(_=>{
+                            this.$message.error('获取列表失败');
+                            this.listLoading=false
+                        })
+                    }else{
+                        this.page.total=0
+                        this.listxian=[]
+                        this.listLoading=false
+                    }
+                }).catch(err=>{
+                    this.$message.error('获取列表失败');
+                    this.listLoading=false
+                })
+            },
+            getAllList(){
+                this.listLoading=true
+                api.getEquListPagination({
+                    pageSize:this.page.size,
+                    offset:this.page.index-1,
+                    columns:this.search?[
+                        {name:'imei',value:this.search}
+                    ]:[]
+                }).then(_=>{
                     if(Array.isArray(_.data)){
                         this.list=_.data
                         this.listxian=_.data
@@ -155,20 +204,21 @@
                     this.listLoading=false
                 })
             },
+            getList(){
+                if([0,1].indexOf(Number(this.adminRoles))!==-1){
+                    this.getGroupList()
+                }else{
+                    this.getAllList()
+                }
+            },
             filterSearch(){
-                this.listLoading=true
-                api.getEquList(this.search).then(_=>{
-                    if(Array.isArray(_)){
-                        this.listxian=_
-                        this.page.total=_.length
-                    }else{
-                        this.$message.error('查找失败');
-                    }
-                    this.listLoading=false
-                }).catch(_=>{
-                    this.$message.error('查找失败');
-                    this.listLoading=false
-                })
+                this.page.index=1
+                this.getList()
+            },
+            refresh(){
+                this.page.index=1
+                this.search=''
+                this.getList()
             },
             openDialog(state,obj){
                 if(state){
@@ -178,6 +228,7 @@
                     this.bind_mode=obj.bind_mode+''
                     this.model=obj.model
                     this.name=obj.name
+                    this.group_id=obj.group_id
                     this.editId=obj.id
                 }else{
                     this.imei=''
@@ -186,6 +237,7 @@
                     this.bind_mode=''
                     this.model=''
                     this.name=''
+                    this.group_id=''
                     this.editId=-1
                 }
                 this.isEdit=state
@@ -207,7 +259,8 @@
                         bind_mode:this.bind_mode,
                         model:this.model,
                         name:this.name,
-                        model:this.model
+                        model:this.model,
+                        group_id:this.group_id
                     }
                     this.addOrEditLoading=true
                     api.equEdit(this.editId,data).then(_=>{
@@ -243,7 +296,8 @@
                         bind_mode:this.bind_mode,
                         model:this.model,
                         name:this.name,
-                        model:this.model
+                        model:this.model,
+                        group_id:this.group_id
                     }
                     this.addOrEditLoading=true
                     api.equAdd(data).then(_=>{

@@ -54,9 +54,13 @@
 <script>
     import api from '@/api/wechart/index'
     import mixin from '@/mixins/index'
+    import {mapState} from 'vuex'
     export default{
         name:'location',
         mixins:[mixin],
+        computed:{
+            ...mapState({user:'user',adminRoles:'roles'})
+        },
         data(){
             return {
                 roles:this.$store.getters.roles,
@@ -81,11 +85,11 @@
             imei(news){
                 clearTimeout(this.timer)
                 this.timer = setTimeout(()=>{
-                    if (news) {
-                        this.search()
-                    }else{
-                        this.getList(this.page.index)
-                    }
+                    // if (news) {
+                    //     this.search()
+                    // }else{
+                        this.getList()
+                    // }
                 }, 500);
             }
         },
@@ -137,31 +141,31 @@
                     this.$message.error('获取失败');
                 })
             },
-            search(){
-                this.$refs.tree2.setCheckedKeys([])
-                this.rollBack('scroll')
-                this.listLoading=true
-                api.getEquList(this.imei).then(_=>{
-                    if(Array.isArray(_)){
-                        const list=[]
-                        for(let i in _){
-                            _[i].imei=`${ _[i].imei}(${ _[i].model.substr(0,4)})`
-                            if(this.mapMarker.filter(res=>res.id==_[i].id).length){
-                                list.push(_[i].id)
-                            }
-                        }
-                        this.page.total= _.length
-                        this.equList= _
-                        this.$refs.tree2.setCheckedKeys(list)
-                    }else{
-                        this.$message.error('获取列表失败');
-                    }
-                    this.listLoading=false
-                }).catch(_=>{
-                    this.$message.error('获取列表失败');
-                    this.listLoading=false
-                })
-            },
+            // search(){
+            //     this.$refs.tree2.setCheckedKeys([])
+            //     this.rollBack('scroll')
+            //     this.listLoading=true
+            //     api.getEquList(this.imei).then(_=>{
+            //         if(Array.isArray(_)){
+            //             const list=[]
+            //             for(let i in _){
+            //                 _[i].imei=`${ _[i].imei}(${ _[i].model.substr(0,4)})`
+            //                 if(this.mapMarker.filter(res=>res.id==_[i].id).length){
+            //                     list.push(_[i].id)
+            //                 }
+            //             }
+            //             this.page.total= _.length
+            //             this.equList= _
+            //             this.$refs.tree2.setCheckedKeys(list)
+            //         }else{
+            //             this.$message.error('获取列表失败');
+            //         }
+            //         this.listLoading=false
+            //     }).catch(_=>{
+            //         this.$message.error('获取列表失败');
+            //         this.listLoading=false
+            //     })
+            // },
             isMap(){
                 if(this.active=='map'){
                     this.setMap('map') 
@@ -175,28 +179,80 @@
                 }); 
             },
             refresh(){
-                this.search=''
                 this.equList=[]
                 this.$refs.tree2.setCheckedKeys([])
                 this.deleteMapMarker()
                 this.deleteInfoWindow()
-                this.changeindex(1)
+                if(this.imei){
+                    this.imei=''
+                    this.listLoading=true
+                }else{
+                    this.getList()
+                }
+                // this.changeindex(1)
             },
-            getList(){
+            getGroupList(){
                 this.$refs.tree2.setCheckedKeys([])
                 this.rollBack('scroll')
                 this.listLoading=true
-                api.getEquListPagination({pageSize:this.page.size,offset:this.page.index-1}).then(_=>{
+                api.getGroupList({user_id:this.user}).then(res=>{
+                    if(res.length){
+                        api.getEquListPagination({
+                            pageSize:this.page.size,
+                            offset:this.page.index-1,
+                            columns:this.imei?[
+                                {name:'group_id',value:res[0].id},
+                                {name:'imei',value:this.imei}
+                            ]:[{name:'group_id',value:res[0].id},]
+                        }).then(_=>{
+                            if(Array.isArray(_.data)){
+                                const list=[]
+                                for(let i in _.data){
+                                    _.data[i].imei=`${ _.data[i].imei}(${ _.data[i].model.substr(0,4)})`
+                                    if(this.mapMarker.filter(res=>res.id==_.data[i].id).length){
+                                        list.push(_.data[i].id)
+                                    }
+                                }
+                                this.page.total= _.page.count
+                                this.equList= _.data
+                                this.$refs.tree2.setCheckedKeys(list)
+                            }else{
+                                this.$message.error('获取列表失败');
+                            }
+                            this.listLoading=false
+                        }).catch(_=>{
+                            this.$message.error('获取列表失败');
+                            this.listLoading=false
+                        })
+                    }else{
+                        this.$message.error('获取列表失败');
+                        this.listLoading=false
+                    }
+                }).catch(err=>{
+                    this.$message.error('获取列表失败');
+                    this.listLoading=false
+                })
+            },
+            getAllList(){
+                this.$refs.tree2.setCheckedKeys([])
+                this.rollBack('scroll')
+                this.listLoading=true
+                api.getEquListPagination({
+                    pageSize:this.page.size,
+                    offset:this.page.index-1,
+                    columns:this.imei?[
+                        {name:'imei',value:this.imei}
+                    ]:[]
+                }).then(_=>{
                     if(Array.isArray(_.data)){
                         const list=[]
-                        console.log(this.mapMarker)
                         for(let i in _.data){
                             _.data[i].imei=`${ _.data[i].imei}(${ _.data[i].model.substr(0,4)})`
                             if(this.mapMarker.filter(res=>res.id==_.data[i].id).length){
                                 list.push(_.data[i].id)
                             }
                         }
-                        this.page.total= _.page.total
+                        this.page.total= _.page.count
                         this.equList= _.data
                         this.$refs.tree2.setCheckedKeys(list)
                     }else{
@@ -207,6 +263,13 @@
                     this.$message.error('获取列表失败');
                     this.listLoading=false
                 })
+            },
+            getList(){
+                if([0,1].indexOf(Number(this.adminRoles))!==-1){
+                    this.getGroupList()
+                }else{
+                    this.getAllList()
+                }
             },
             deleteInfoWindow(){             //删除信息窗口
                 if(this.infoWindow){

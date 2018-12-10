@@ -148,11 +148,17 @@
             getList(){
                 this.search=''
                 this.listLoading=true
-                api.getzhucheListPagination({pageSize:this.page.size,offset:this.page.index-1}).then(_=>{
+                api.getzhucheListPagination({
+                    pageSize:this.page.size,
+                    offset:this.page.index-1,
+                    columns:[
+                        {name:'type',value:'D603testP3'}
+                    ]
+                }).then(_=>{
                     if(Array.isArray(_.data)){
                         this.list=_.data
                         this.listxian=_.data
-                        this.page.total=_.page.total
+                        this.page.total=_.page.count
                     }else{
                         this.$message.error('获取列表失败');
                     }
