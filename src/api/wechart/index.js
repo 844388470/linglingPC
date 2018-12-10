@@ -126,6 +126,30 @@ const getLocation = (id) => (
     axios.get(`/devices/${id}/latest`)
 )
 
+const getGroupList = (obj) => (
+    axios.get(`/deviceGroup`,{
+        params:{
+            ...obj
+        }
+    })
+)
+
+const getGroupListPagination = (data) => (
+    axios.post('/deviceGroup/pagination',data)
+)
+
+const groupAdd = (data) =>(
+    axios.post('/deviceGroup',data)
+)
+
+const groupEdit = (id,data) => (
+    axios.put('/deviceGroup/'+id,data)
+)
+
+const groupDelete=(id)=>(
+    axios.delete('/deviceGroup/'+id)
+)
+
 export default {
     login,
     getzhucheList,
@@ -153,5 +177,10 @@ export default {
     getEquCity,
     getEquModel,
     getHistory,
-    getLocation
+    getLocation,
+    getGroupList,
+    getGroupListPagination,
+    groupAdd,
+    groupEdit,
+    groupDelete,
 }

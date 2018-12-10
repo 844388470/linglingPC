@@ -103,8 +103,8 @@ const list={
         icon: 'chanpinguanli',
         redirect: '/wechart/zhuche',
         children: [
-          {path: 'zhuche',name: '设备导入表',component:() => import('@/views/wechart/zhuche') ,meta: { keep: 'zhuche' },radius:true,roles:[0,1,88,99],},
-          {path: 'jihuo',name: '已激活设备',component: () =>import('@/views/wechart/jihuo'),meta: { keep: 'jihuo' },radius:true,roles:[0,1,88,99],},
+          {path: 'zhuche',name: '设备导入表',component:() => import('@/views/wechart/zhuche') ,meta: { keep: 'zhuche' },radius:true,roles:[88,99],},
+          {path: 'jihuo',name: '设备详情',component: () =>import('@/views/wechart/jihuo'),meta: { keep: 'jihuo' },radius:true,roles:[0,1,88,99],},
           {path: 'history',name: '设备轨迹',component: () =>import('@/views/wechart/history'),meta: { keep: 'history' },radius:true,roles:[0,1,88,99],},
           {path: 'location',name: '设备定位',component: () =>import('@/views/wechart/location'),meta: { keep: 'location' },radius:true,roles:[0,1,88,99],},
           // {path: 'wechartUser',name: '小程序用户',component: () =>import('@/views/wechart/wechartUser'),meta: { keep: 'wechartUser' },radius:true,roles:[0,1,88,99],},
@@ -125,10 +125,22 @@ const list={
         ]
       },
       {
+        path: '/GroupManagement',
+        name: '分组管理',
+        radius:true,
+        roles:[88,99],
+        component: _import('index'),
+        icon: 'fenzuguanli',
+        redirect: '/GroupManagement/group',
+        children: [
+          {path: 'group',name: '分组',component: () =>import('@/views/wechart/group'),meta: { keep: 'group' },radius:true,roles:[0,1,88,99],},
+        ]
+      },
+      {
         path: '/Statistics',
         name: '统计',
         radius:true,
-        roles:[0,1,88,99],
+        roles:[88,99],
         component: _import('index'),
         icon: 'caidan',
         redirect: '/Statistics/users',
