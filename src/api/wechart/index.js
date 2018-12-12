@@ -150,6 +150,11 @@ const groupDelete=(id)=>(
     axios.delete('/deviceGroup/'+id)
 )
 
+const addCoor=(imei)=>(
+    axios.post('/devices/bind',{imei:imei})
+)
+
+
 export default {
     login,
     getzhucheList,
@@ -183,4 +188,5 @@ export default {
     groupAdd,
     groupEdit,
     groupDelete,
+    addCoor,
 }

@@ -55,6 +55,10 @@
                                     v-if="[88,99].filter(res=>res==roles).length"
                                     size="mini"
                                     @click="deleteEqu(scope.row.id)">删除</el-button>
+                                    <el-button
+                                    v-if="[88,99].filter(res=>res==roles).length"
+                                    size="mini"
+                                    @click="jihuo(scope.row.imei)">激活</el-button>
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -124,7 +128,7 @@
                 addOrEditLoading:false,
                 listxian:[],
                 search:'',
-                imei:'',
+                imei:869618040520049,
                 iccid:'',
                 type:'',
                 model:'',
@@ -191,14 +195,24 @@
                     this.model=obj.model
                     this.editId=obj.id
                 }else{
-                    this.imei=''
+                    this.imei=Number(this.imei)+1
                     this.iccid=''
-                    this.type=''
-                    this.model=''
+                    this.type='D603testP3'
+                    this.model='D603testP3'
                     this.editId=-1
                 }
                 this.isEdit=state
                 this.dialogState=true
+            },
+            jihuo(imei){
+                this.listLoading=true
+                api.addCoor(imei).then(_=>{
+                    this.$message.success('激活成功');
+                    this.listLoading=false
+                }).catch(_=>{
+                    this.$message.error(_.message);
+                    this.listLoading=false
+                })
             },
             confirmAdd(){
                 if(this.imei.length=='' || this.type==''){
