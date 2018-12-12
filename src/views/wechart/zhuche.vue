@@ -83,21 +83,21 @@
                 <label class="el-form-item__label">iccid:</label>
                 <el-input v-model="iccid"></el-input>
                 <label class="el-form-item__label">type:</label>
-                <el-input v-model="type" v-if="[88,99].filter(res=>res==roles).length"></el-input>
-                <div style="width: 100%;display: inline-block;position: relative;"  v-if="[88,99].filter(res=>res==roles).length==0&&types.indexOf('cs')!==-1">
+                <el-input v-model="type" v-if="[99].filter(res=>res==roles).length"></el-input>
+                <div style="width: 100%;display: inline-block;position: relative;"  v-if="[99].filter(res=>res==roles).length==0&&types.indexOf('cs')!==-1">
                     <el-radio v-model="type" label="D601testP2">D601</el-radio>
                     <el-radio v-model="type" label="D603testP2">D603</el-radio>
                     <el-radio v-model="type" label="D606test">D606</el-radio>
                     <el-radio v-model="type" label="D608test">D608</el-radio>
                 </div>
-                <div style="width: 100%;display: inline-block;position: relative;"  v-if="[88,99].filter(res=>res==roles).length==0&&types.indexOf('zs')!==-1">
+                <div style="width: 100%;display: inline-block;position: relative;"  v-if="[99].filter(res=>res==roles).length==0&&types.indexOf('zs')!==-1">
                     <el-radio v-model="type" label="D601testP3">D601</el-radio>
                     <el-radio v-model="type" label="D603testP3">D603</el-radio>
                     <el-radio v-model="type" label="D606testP3">D606</el-radio>
                     <el-radio v-model="type" label="D608testP3">D608</el-radio>
                 </div>
-                <label class="el-form-item__label" v-if="[88,99].filter(res=>res==roles).length">model:</label>
-                <el-input v-model="model" v-if="[88,99].filter(res=>res==roles).length"></el-input>
+                <label class="el-form-item__label" v-if="[99].filter(res=>res==roles).length">model:</label>
+                <el-input v-model="model" v-if="[99].filter(res=>res==roles).length"></el-input>
             </div>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="handleClose">取 消</el-button>
