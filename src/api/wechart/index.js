@@ -154,6 +154,10 @@ const addCoor=(imei)=>(
     axios.post('/devices/bind',{imei:imei})
 )
 
+const relieveCoor=(id,equId)=>(
+    axios.delete(`/users/${id}/devices/${equId}`)
+)
+
 
 export default {
     login,
@@ -189,4 +193,5 @@ export default {
     groupEdit,
     groupDelete,
     addCoor,
+    relieveCoor
 }

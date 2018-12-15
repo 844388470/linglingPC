@@ -207,8 +207,13 @@
             jihuo(imei){
                 this.listLoading=true
                 api.addCoor(imei).then(_=>{
-                    this.$message.success('激活成功');
-                    this.listLoading=false
+                    api.relieveCoor(this.$store.getters.user,_.did).then(_=>{
+                        this.$message.success('激活成功');
+                        this.listLoading=false
+                    }).catch(_=>{
+                        this.$message.error(_.message);
+                        this.listLoading=false
+                    })
                 }).catch(_=>{
                     this.$message.error(_.message);
                     this.listLoading=false
