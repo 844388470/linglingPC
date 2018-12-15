@@ -5,9 +5,12 @@
                 <el-col :span="4">
                     <el-input v-model="search" placeholder="请输入设备imei号"></el-input>
                 </el-col>
+                <el-col :span="4">
+                    <el-input v-model="searchType" placeholder="请输入设备类型"></el-input>
+                </el-col>
                 <el-col :span="16">
-                      <el-button @click="filterSearch">查找</el-button>
-                      <el-button @click="changeindex(1)">刷新</el-button>
+                      <el-button @click="getList()">查找</el-button>
+                      <el-button @click="filterSearch">刷新</el-button>
                       <el-button @click="openDialog(false)">注册</el-button>
                 </el-col>
             </el-row>
@@ -55,6 +58,10 @@
                                     v-if="[88,99].filter(res=>res==roles).length"
                                     size="mini"
                                     @click="deleteEqu(scope.row.id)">删除</el-button>
+                                    <el-button
+                                    v-if="[99].filter(res=>res==roles).length"
+                                    size="mini"
+                                    @click="jihuo(scope.row.imei)">激活</el-button>
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -124,6 +131,7 @@
                 addOrEditLoading:false,
                 listxian:[],
                 search:'',
+                searchType:'',
                 imei:'',
                 iccid:'',
                 type:'',
@@ -146,14 +154,18 @@
         },
         methods:{
             getList(){
-                this.search=''
                 this.listLoading=true
+                var columns=[]
+                if(this.search){
+                    columns.push({name:'imei',value:this.search})
+                }
+                if(this.searchType){
+                    columns.push({name:'type',value:this.searchType})
+                }
                 api.getzhucheListPagination({
                     pageSize:this.page.size,
                     offset:this.page.index-1,
-                    columns:[
-                        {name:'type',value:'D603testP3'}
-                    ]
+                    columns:columns
                 }).then(_=>{
                     if(Array.isArray(_.data)){
                         this.list=_.data
@@ -169,19 +181,10 @@
                 })
             },
             filterSearch(){
-                this.listLoading=true
-                api.getzhucheList(this.search).then(_=>{
-                    if(Array.isArray(_)){
-                        this.listxian=_
-                        this.page.total=_.length
-                    }else{
-                        this.$message.error('查找失败');
-                    }
-                    this.listLoading=false
-                }).catch(_=>{
-                    this.$message.error('查找失败');
-                    this.listLoading=false
-                })
+                this.page.index=1
+                this.search=''
+                this.searchType=''
+                this.getList()
             },
             openDialog(state,obj){
                 if(state){
@@ -199,6 +202,21 @@
                 }
                 this.isEdit=state
                 this.dialogState=true
+            },
+            jihuo(imei){
+                this.listLoading=true
+                api.addCoor(imei).then(_=>{
+                    api.relieveCoor(this.$store.getters.user,_.did).then(_=>{
+                        this.$message.success('激活成功');
+                        this.listLoading=false
+                    }).catch(_=>{
+                        this.$message.error(_.message);
+                        this.listLoading=false
+                    })
+                }).catch(_=>{
+                    this.$message.error(_.message);
+                    this.listLoading=false
+                })
             },
             confirmAdd(){
                 if(this.imei.length=='' || this.type==''){
