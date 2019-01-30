@@ -125,6 +125,19 @@ const list={
         ]
       },
       {
+        path: '/Message',
+        name: '消息管理',
+        radius:true,
+        roles:[88,99],
+        component: _import('index'),
+        icon: 'jiankong',
+        redirect: '/Message/locationMessage',
+        children: [
+          {path: 'locationMessage',name: '定位消息展示',component: () =>import('@/views/wechart/locationMessage'),meta: { keep: 'locationMessage' },radius:true,roles:[88,99],},
+          {path: 'policeMessage',name: '报警消息展示',component: () =>import('@/views/wechart/policeMessage'),meta: { keep: 'policeMessage' },radius:true,roles:[88,99],},
+        ]
+      },
+      {
         path: '/GroupManagement',
         name: '分组管理',
         radius:true,

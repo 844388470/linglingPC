@@ -194,7 +194,7 @@
                     if(Array.isArray(_.data)){
                         this.list=_.data
                         this.listxian=_.data
-                        this.page.total=_.page.total
+                        this.page.total=_.page.count
                     }else{
                         this.$message.error('获取列表失败');
                     }

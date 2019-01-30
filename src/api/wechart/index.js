@@ -159,6 +159,17 @@ const relieveCoor=(id,equId)=>(
     axios.delete(`/users/${id}/devices/${equId}`)
 )
 
+const getMessageList = (id,obj={}) => (
+    axios.get(`/devices/${id}/messages`,{
+        params:{
+            ...obj
+        }
+    })
+)
+
+const getMessageListPagination = (id,data) => (
+    axios.post(`/devices/${id}/messages/pagination`,data)
+)
 
 export default {
     login,
@@ -194,5 +205,7 @@ export default {
     groupEdit,
     groupDelete,
     addCoor,
-    relieveCoor
+    relieveCoor,
+    getMessageList,
+    getMessageListPagination
 }
