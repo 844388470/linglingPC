@@ -54,6 +54,12 @@
             </el-card>
         </el-col>
     </el-row>
+    <!-- <el-row>
+        <span>方块选择</span>
+        <select name="" id=""  v-model="selected" @change="selectbj(selected)">
+            <option v-for="option in layouts" value="option.value">{{option.name}}</option>
+        </select>
+    </el-row> -->
   </div>
 </template>
 
@@ -66,6 +72,14 @@ export default {
         CountTo
     },
     data() {
+        selected:0;
+        layouts:[
+            {name:'1X1模式',value:'0'},
+            {name:'2X1模式',value:'1'},
+            {name:'2X2模式',value:'2'},
+            {name:'3X3模式',value:'3'},
+            {name:'1+5模式',value:'4'},
+            ]
         return {
             height:1000,
             userNum:0,
@@ -132,7 +146,7 @@ export default {
             font-weight: 600;
             color: #666;
         }
-    }
+    }  
   }
 </style>
 <style rel="stylesheet/scss" lang="scss">

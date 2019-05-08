@@ -8,7 +8,7 @@
                 <el-col :span="16">
                       <el-button @click="filterSearch">查找</el-button>
                       <el-button @click="refresh">刷新</el-button>
-                      <el-button @click="openDialog(false)" v-if="[88,99].filter(res=>res==roles).length">添加</el-button>
+                      <el-button @click="openDialog(false)" >添加</el-button>
                 </el-col>
             </el-row>
         </el-card>

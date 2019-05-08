@@ -22,7 +22,7 @@
                         type="datetime"
                         placeholder="选择结束时间">
                     </el-date-picker>
-                </el-col>
+                </el-col> 
 
                 <el-col :span="6">
                       <el-button @click="getHistory" :disabled="listLoading">查找</el-button>
@@ -137,6 +137,8 @@
                     this.deleteMapMarker()
                     this.deleteInfoWindow()
                     this.deletePolyline()
+                    // console.log(this.mapMarker,t1his.mapMarkerEvent)
+                    // console.log("结果" + res)
                     res.sort((a,b)=>new Date(a.eventTime).getTime()-new Date(b.eventTime).getTime())
                     for(let i in res){
                         if(res[i].longitude&&res[i].latitude&&!list.filter(obj=>obj.time==res[i].eventTime).length){

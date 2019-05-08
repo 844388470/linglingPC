@@ -18,7 +18,7 @@ module.exports = {
         target:process.env.type.indexOf('zs')!==-1?'https://api.rinlink.com':'https://tapi.rinlink.com',
         changeOrigin: true,
         // pathRewrith:{
-        //   // '^/api': ''
+        //    '^/api': ''
         // }
       }
     },

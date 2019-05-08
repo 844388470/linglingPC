@@ -57,11 +57,15 @@
                                 prop="create_date"
                                 label="创建时间">
                             </el-table-column>
-                            <el-table-column label="操作" width="360"> 
+                            <el-table-column label="操作" width="500"> 
                                 <template slot-scope="scope">
                                     <el-button
                                     size="mini"
                                     @click="openDialog(scope.row.id)">查看绑定记录</el-button>
+                                    <el-button
+                                    size="mini"
+                                    v-if="scope.row.id==user||(adminRoles==99&&scope.row.role!==99)||(adminRoles==88&&scope.row.role!==99&&scope.row.role!==88)"
+                                    @click="openuselog(scope.row.id)">修改用户权限</el-button>
                                     <el-button
                                     size="mini"
                                     v-if="scope.row.id==user||(adminRoles==99&&scope.row.role!==99)||(adminRoles==88&&scope.row.role!==99&&scope.row.role!==88)"
@@ -208,324 +212,405 @@
                 <el-button type="primary" @click="pcConfirmAdd" :loading="pcAddOrEditLoading">确 定</el-button>
             </span>
         </el-dialog>
+
+        <el-dialog
+            title="用户权限设置"
+            :visible.sync="dialogState2"
+            width="30%"
+            :before-close="handleClose"
+            @selection-change="handleSelectionChange">
+            <div :style="{height:'400px',overflow:'hidden' }" v-loading="bindListLoading">
+                <el-scrollbar :style="{height:400+17+'px' }">
+                    <div style="overflow:hidden;">
+                        <el-table
+                           ref="multipleTable"
+                           :data="tableData"
+                           tooltip-effect="dark"
+                           style="width: 100%"
+                           @selection-change="handleSelectionChange">
+                          <el-table-column
+                              type="selection"
+                              width="55">
+                            </el-table-column>
+                            <el-table-column
+                              prop="leimu"
+                              label="权限管理">
+                        </el-table-column>
+                            
+                        </el-table>
+                    </div>
+                </el-scrollbar>
+            </div>
+             <span slot="footer" class="dialog-footer">
+                <el-button type="primary" @click="pcConfirmchange" :loading="pcAddOrEditLoading">确 定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 <script>
-    import api from '@/api/wechart/index'
-    import mixin from '@/mixins/index'
-    import {mapState} from 'vuex'
-    export default{
-        name:'wechartUser',
-        mixins:[mixin],
-        computed:{
-            ...mapState({user:'user',adminRoles:'roles'})
-        },
-        data(){
-            return {
-                username:'',
-                password:'',
-                // adminRoles:this.$store.getters.roles,
-                windowHeight:0,
-                list:[],
-                listLoading:false,
-                addOrEditLoading:false,
-                pcAddOrEditLoading:false,
-                listxian:[],
-                search:'',
-                searchRoles:'',
-                name:'',
-                nickname:'',
-                phone:'',
-                email:'',
-                height:'',
-                weight:'',
-                roles:-1,
-                sport_target:'',
-                dialogState:false,
-                dialogStates:false,
-                pcDialogStates:false,
-                isEdit:false,
-                pcIsEdit:false,
-                editId:-1,
-                pcEditId:-1,
-                id:-1,
-                bindList:[],    
-                bindListLoading:false,
-                rolesList:[
-                    {id:0,name:'小程序用户'},
-                    {id:1,name:'普通用户'},
-                    {id:88,name:'管理员'},
-                    {id:99,name:'超级管理员'},
-                ]
+import api from "@/api/wechart/index";
+import mixin from "@/mixins/index";
+import { mapState } from "vuex";
+export default {
+  name: "wechartUser",
+  mixins: [mixin],
+  computed: {
+    ...mapState({ user: "user", adminRoles: "roles" })
+  },
+  data() {
+    return {
+      username: "",
+      password: "",
+      // adminRoles:this.$store.getters.roles,
+      windowHeight: 0,
+      list: [],
+      listLoading: false,
+      addOrEditLoading: false,
+      pcAddOrEditLoading: false,
+      listxian: [],
+      search: "",
+      searchRoles: "",
+      name: "",
+      nickname: "",
+      phone: "",
+      email: "",
+      height: "",
+      weight: "",
+      roles: -1,
+      sport_target: "",
+      dialogState: false,
+      dialogState2: false,
+      dialogStates: false,
+      pcDialogStates: false,
+      isEdit: false,
+      pcIsEdit: false,
+      editId: -1,
+      pcEditId: -1,
+      id: -1,
+      bindList: [],
+      bindListLoading: false,
+      rolesList: [
+        { id: 0, name: "小程序用户" },
+        { id: 1, name: "普通用户" },
+        { id: 88, name: "管理员" },
+        { id: 99, name: "超级管理员" }
+      ],
+      tableData:[
+        { id: 0, leimu: "查询设备定位" },
+        { id: 1, leimu: "查询轨迹" },
+        { id: 88, leimu: "添加设备" },
+        { id: 99, leimu: "编辑设备" },
+        { id: 99, leimu: "用户管理" },
+        { id: 99, leimu: "修改密码" }
+      ]
+    };
+  },
+  mounted() {
+    console.log(this.adminRoles);
+    this.windowHeight = document.body.offsetHeight - 330;
+    this.getList();
+  },
+  methods: {
+    getList() {
+      this.search = "";
+      this.searchRoles = "";
+      this.listLoading = true;
+      this.rollBack("scroll");
+      api
+        .getUsersListPagination({
+          pageSize: this.page.size,
+          offset: this.page.index - 1
+        })
+        .then(_ => {
+          if (Array.isArray(_.data)) {
+            this.list = _.data;
+            this.listxian = _.data;
+            this.page.total = _.page.total;
+          } else {
+            this.$message.error("获取列表失败");
+          }
+          this.listLoading = false;
+        })
+        .catch(_ => {
+          this.$message.error("获取列表失败");
+          this.listLoading = false;
+        });
+    },
+
+    handleSelectionChange(val) {
+        this.multipleSelection = val;
+      },
+    getBindList(id) {
+      this.bindListLoading = true;
+      api
+        .getBindList(id)
+        .then(_ => {
+          if (Array.isArray(_)) {
+            this.bindList = _;
+          } else {
+            this.$message.error("获取列表失败");
+          }
+          this.bindListLoading = false;
+        })
+        .catch(_ => {
+          this.$message.error("获取列表失败");
+          this.bindListLoading = false;
+        });
+    },
+    filterSearch() {
+      this.listLoading = true;
+      api
+        .getUsersList({ nickname: this.search, role: this.searchRoles })
+        .then(_ => {
+          if (Array.isArray(_)) {
+            this.listxian = _;
+            this.page.total = _.length;
+            // this.page.size=_.length
+          } else {
+            this.$message.error("查找失败");
+          }
+          this.listLoading = false;
+        })
+        .catch(_ => {
+          this.$message.error("查找失败");
+          this.listLoading = false;
+        });
+    },
+    openDialog(id) {
+      this.id = id;
+      this.dialogState = true;
+      this.getBindList(id);
+    },
+    openuselog(id) {
+      this.id = id;
+      this.dialogState2 = true;
+    //   this.getBindList(id);
+    },
+    pcConfirmchange(){
+      this.$message({
+          type: "success",
+           message: "修改成功!"
+              });
+    this.dialogState2 = false;
+    },
+    openDialogs(state, obj) {
+      if (state) {
+        this.name = obj.name;
+        this.nickname = obj.nickname;
+        this.phone = obj.phone;
+        this.email = obj.email;
+        this.height = obj.height;
+        this.weight = obj.weight;
+        this.sport_target = obj.sport_target;
+        this.editId = obj.id;
+        this.roles = obj.role;
+      } else {
+        this.name = "";
+        this.nickname = "";
+        this.phone = "";
+        this.email = "";
+        this.height = "";
+        this.weight = "";
+        this.sport_target = "";
+        this.roles = 1;
+        this.editId = -1;
+      }
+      this.isEdit = state;
+      this.dialogStates = true;
+    },
+    async confirmAdd() {
+      let data = {
+        name: this.name,
+        nickname: this.nickname,
+        phone: this.phone,
+        email: this.email,
+        height: this.height,
+        weight: this.weight,
+        sport_target: this.sport_target,
+        role: this.roles
+      };
+      this.addOrEditLoading = true;
+      let res = null;
+      if (this.isEdit) {
+        res = await api.userEdit(this.editId, data).catch(_ => {});
+      } else {
+        res = await api.userAdd(data).catch(_ => {});
+      }
+      if (res && (res.affectedRows || res.id)) {
+        this.$message({
+          type: "success",
+          message: `${this.isEdit ? "修改成功" : "添加成功"}`
+        });
+        this.dialogStates = false;
+        this.getList();
+        this.addOrEditLoading = false;
+      } else {
+        this.$message({
+          type: "error",
+          message: `${this.isEdit ? "修改失败" : "添加失败"}`
+        });
+        this.addOrEditLoading = false;
+      }
+    },
+    deleteBindRecord(id) {
+      this.$confirm("删除后无法恢复, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          this.bindListLoading = true;
+          api
+            .deleteBindRecord(id)
+            .then(_ => {
+              if (_.affectedRows) {
+                this.$message({
+                  type: "success",
+                  message: "删除成功!"
+                });
+                this.getBindList(this.id);
+              }
+            })
+            .catch(_ => {
+              this.$message({
+                type: "error",
+                message: "删除失败!"
+              });
+            });
+        })
+        .catch(() => {
+          this.bindListLoading = false;
+          this.$message({
+            type: "info",
+            message: "已取消删除"
+          });
+        });
+    },
+    deleteUser(id) {
+      this.$confirm("删除后无法恢复, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          api
+            .userDelete(id)
+            .then(_ => {
+              if (_.affectedRows) {
+                this.$message({
+                  type: "success",
+                  message: "删除成功!"
+                });
+                this.getList();
+              }
+            })
+            .catch(_ => {
+              this.$message({
+                type: "error",
+                message: "删除失败!"
+              });
+            });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除"
+          });
+        });
+    },
+    handleClose() {
+      this.dialogState = false;
+    },
+    handleCloses() {
+      this.dialogStates = false;
+    },
+    pcOpenDialogs(state, obj) {
+      if (state) {
+        this.username = obj.username;
+        this.password = "";
+        this.pcEditId = obj.id;
+        // this.nickname=obj.nickname
+        // this.phone=obj.phone
+        // this.email=obj.email
+        // this.height=obj.height
+        // this.weight=obj.weight
+        // this.sport_target=obj.sport_target
+        // this.editId=obj.id
+      } else {
+        this.username = "";
+        this.password = "";
+        this.pcEditId = -1;
+      }
+      this.pcIsEdit = state;
+      this.pcDialogStates = true;
+    },
+    pcConfirmAdd() {
+      if (this.pcIsEdit) {
+        let data = {
+          username: this.username,
+          password: this.password
+        };
+        this.pcAddOrEditLoading = true;
+        api
+          .userEdit(this.pcEditId, data)
+          .then(_ => {
+            if (_.affectedRows) {
+              this.$message({
+                type: "success",
+                message: "修改成功!"
+              });
+              this.pcDialogStates = false;
+              this.getList();
+              this.pcAddOrEditLoading = false;
+            } else {
+              return Promise.reject();
             }
-        },
-        mounted(){
-            console.log(this.adminRoles)
-            this.windowHeight=document.body.offsetHeight-330
-            this.getList()
-        },
-        methods:{
-            getList(){
-                this.search=''
-                this.searchRoles=''
-                this.listLoading=true
-                this.rollBack('scroll')
-                api.getUsersListPagination({pageSize:this.page.size,offset:this.page.index-1}).then(_=>{
-                    if(Array.isArray(_.data)){
-                        this.list=_.data
-                        this.listxian=_.data
-                        this.page.total=_.page.total
-                    }else{
-                        this.$message.error('获取列表失败');
-                    }
-                    this.listLoading=false
-                }).catch(_=>{
-                    this.$message.error('获取列表失败');
-                    this.listLoading=false
-                })
-            },
-            getBindList(id){
-                this.bindListLoading=true
-                api.getBindList(id).then(_=>{
-                    if(Array.isArray(_)){
-                        this.bindList=_
-                    }else{
-                        this.$message.error('获取列表失败');
-                    }
-                    this.bindListLoading=false
-                }).catch(_=>{
-                    this.$message.error('获取列表失败');
-                    this.bindListLoading=false
-                })
-            },
-            filterSearch(){
-                this.listLoading=true
-                api.getUsersList({nickname:this.search,role:this.searchRoles}).then(_=>{
-                    if(Array.isArray(_)){
-                        this.listxian=_
-                        this.page.total=_.length
-                        // this.page.size=_.length
-                    }else{
-                        this.$message.error('查找失败');
-                    }
-                    this.listLoading=false
-                }).catch(_=>{
-                    this.$message.error('查找失败');
-                    this.listLoading=false
-                })
-            },
-            openDialog(id){
-                this.id=id
-                this.dialogState=true
-                this.getBindList(id)
-            },
-            openDialogs(state,obj){
-                if(state){
-                    this.name=obj.name
-                    this.nickname=obj.nickname
-                    this.phone=obj.phone
-                    this.email=obj.email
-                    this.height=obj.height
-                    this.weight=obj.weight
-                    this.sport_target=obj.sport_target
-                    this.editId=obj.id
-                    this.roles=obj.role
-                }else{
-                    this.name=''
-                    this.nickname=''
-                    this.phone=''
-                    this.email=''
-                    this.height=''
-                    this.weight=''
-                    this.sport_target=''
-                    this.roles=1
-                    this.editId=-1
-                }
-                this.isEdit=state
-                this.dialogStates=true
-            },
-            async confirmAdd(){
-                let data={
-                    'name':this.name,
-                    'nickname':this.nickname,
-                    'phone':this.phone,
-                    'email':this.email,
-                    'height':this.height,
-                    'weight':this.weight,
-                    'sport_target':this.sport_target,
-                    'role':this.roles
-                }
-                this.addOrEditLoading=true
-                let res=null
-                if(this.isEdit){
-                    res=await api.userEdit(this.editId,data).catch(_=>{
-                        
-                    })
-                }else{
-                    res=await api.userAdd(data).catch(_=>{
-                        
-                    })
-                }
-                if(res&&(res.affectedRows||res.id)){
-                    this.$message({
-                        type: 'success',
-                        message: `${this.isEdit?'修改成功':'添加成功'}`
-                    });
-                    this.dialogStates=false
-                    this.getList()
-                    this.addOrEditLoading=false
-                }else{
-                    this.$message({
-                        type: 'error',
-                        message: `${this.isEdit?'修改失败':'添加失败'}`
-                    });
-                    this.addOrEditLoading=false
-                }
-            },
-            deleteBindRecord(id){
-                this.$confirm('删除后无法恢复, 是否继续?', '提示', {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
-                    type: 'warning'
-                }).then(() => {
-                    this.bindListLoading=true
-                    api.deleteBindRecord(id).then(_=>{
-                        if(_.affectedRows){
-                            this.$message({
-                                type: 'success',
-                                message: '删除成功!'
-                            });
-                            this.getBindList(this.id)
-                        }
-                    }).catch(_=>{
-                        this.$message({
-                            type: 'error',
-                            message: '删除失败!'
-                        });
-                    })
-                }).catch(() => {
-                    this.bindListLoading=false
-                    this.$message({
-                        type: 'info',
-                        message: '已取消删除'
-                    });          
-                });
-            },
-            deleteUser(id){
-                this.$confirm('删除后无法恢复, 是否继续?', '提示', {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
-                    type: 'warning'
-                }).then(() => {
-                    api.userDelete(id).then(_=>{
-                        if(_.affectedRows){
-                            this.$message({
-                                type: 'success',
-                                message: '删除成功!'
-                            });
-                            this.getList()
-                        }
-                    }).catch(_=>{
-                        this.$message({
-                            type: 'error',
-                            message: '删除失败!'
-                        });
-                    })
-                }).catch(() => {
-                    this.$message({
-                        type: 'info',
-                        message: '已取消删除'
-                    });          
-                });
-            },
-            handleClose(){
-                this.dialogState=false
-            },
-            handleCloses(){
-                this.dialogStates=false
-            },
-            pcOpenDialogs(state,obj){
-                if(state){
-                    this.username=obj.username
-                    this.password=''
-                    this.pcEditId=obj.id
-                    // this.nickname=obj.nickname
-                    // this.phone=obj.phone
-                    // this.email=obj.email
-                    // this.height=obj.height
-                    // this.weight=obj.weight
-                    // this.sport_target=obj.sport_target
-                    // this.editId=obj.id
-                }else{
-                    this.username=''
-                    this.password=''
-                    this.pcEditId=-1
-                }
-                this.pcIsEdit=state
-                this.pcDialogStates=true
-            },
-            pcConfirmAdd(){
-                if(this.pcIsEdit){
-                    let data={
-                        'username':this.username,
-                        'password':this.password
-                    }
-                    this.pcAddOrEditLoading=true
-                    api.userEdit(this.pcEditId,data).then(_=>{
-                        if(_.affectedRows){
-                            this.$message({
-                                type: 'success',
-                                message: '修改成功!'
-                            });
-                            this.pcDialogStates=false
-                            this.getList()
-                            this.pcAddOrEditLoading=false
-                        }else{
-                            return Promise.reject()
-                        }
-                    }).catch(_=>{
-                        this.$message({
-                            type: 'error',
-                            message: '修改失败!'
-                        });
-                        this.pcAddOrEditLoading=false
-                    })
-                }else{
-                    let data={
-                        'username':this.username,
-                        'password':this.password
-                    }
-                    this.pcAddOrEditLoading=true
-                    api.userRegister(data).then(_=>{
-                        if(_.id){
-                            this.$message({
-                                type: 'success',
-                                message: '添加成功!'
-                            });
-                            this.pcDialogStates=false
-                            this.getList()
-                            this.pcAddOrEditLoading=false
-                        }else{
-                            return Promise.reject()
-                        }
-                    }).catch(_=>{
-                        this.$message({
-                            type: 'error',
-                            message: '添加失败!'
-                        });
-                        this.pcAddOrEditLoading=false
-                    })
-                }
-            },
-            pcHandleClose(){
-                this.pcDialogState=false
-            },
-            pcHandleCloses(){
-                this.pcDialogStates=false
-            },
-        }
+          })
+          .catch(_ => {
+            this.$message({
+              type: "error",
+              message: "修改失败!"
+            });
+            this.pcAddOrEditLoading = false;
+          });
+      } else {
+        let data = {
+          username: this.username,
+          password: this.password
+        };
+        this.pcAddOrEditLoading = true;
+        api
+          .userRegister(data)
+          .then(_ => {
+            if (_.id) {
+              this.$message({
+                type: "success",
+                message: "添加成功!"
+              });
+              this.pcDialogStates = false;
+              this.getList();
+              this.pcAddOrEditLoading = false;
+            } else {
+              return Promise.reject();
+            }
+          })
+          .catch(_ => {
+            this.$message({
+              type: "error",
+              message: "添加失败!"
+            });
+            this.pcAddOrEditLoading = false;
+          });
+      }
+    },
+    pcHandleClose() {
+      this.pcDialogState = false;
+    },
+    pcHandleCloses() {
+      this.pcDialogStates = false;
     }
+  }
+};
 </script>
 <style type="stylesheet/scss" lang="scss" scoped>
-
 </style>

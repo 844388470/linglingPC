@@ -118,7 +118,7 @@ const getEquModel = () => (
     axios.get('/devices/count/model',)
 )
 
-const getHistory = (id,data) => (
+const getHistory = (id,data) => ( 
     axios.get(`/devices/${id}/positions?startTime=${data.startTime}&endTime=${data.endTime}`)
 )
 
