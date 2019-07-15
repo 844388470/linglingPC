@@ -1,6 +1,15 @@
 <template>
     <div id="jihuo" v-loading="listLoading">
-        <el-card shadow="always" class="mb20">
+        
+        <!-- <el-card style="widht:20%">
+        <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
+        </el-card> -->
+        
+        <el-card shadow="always" :style="'height:'+height+'px','line-height:40px;'">
+            <!-- <div style="width:10%;float:left;text-line:100%;">
+            <h5>客户目录</h5>
+        </div> -->
+            <!-- <el-card shadow="always" class="mb20"> -->
             <el-row :gutter="10">
                 <el-col :span="4">
                     <el-input v-model="search" placeholder="请输入设备imei号"></el-input>
@@ -11,9 +20,11 @@
                       <el-button @click="openDialog(false)" >添加</el-button>
                 </el-col>
             </el-row>
-        </el-card>
-        <el-card shadow="always" :style="'height:'+height+'px'">
-            <div :style="{height:height-40+'px',overflow:'hidden' }">
+        <!-- </el-card> -->
+            <!-- <div style="width:10%;float:left;">
+                <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
+            </div> -->
+            <div :style="{height:height+'px',overflow:'hidden' }">
                 <el-scrollbar :style="{height:height-23+'px' }">
                     <div style="overflow:hidden;">
                         <el-table
@@ -140,11 +151,29 @@
                 dialogState:false,
                 isEdit:false,
                 editId:-1,
-                group_id:0
+                group_id:0, data: [{
+          label: '瑞章',
+          children: [{
+            label: 'D601',
+            children: [{
+              label: '测试设备'
+            }]
+          }]
+        }, {
+          label: '客户B',
+          children: [{
+            label: 'D603'
+          }]
+        }],
+        defaultProps: {
+          children: 'children',
+          label: 'label'
+        }
             }
         },
         mounted(){
             this.height=document.body.offsetHeight-330
+            console.log("当前数据"+this.page.size)
             this.getList()
         },
         methods:{
@@ -205,6 +234,7 @@
                 })
             },
             getList(){
+                
                 if([0,1].indexOf(Number(this.adminRoles))!==-1){
                     this.getGroupList()
                 }else{

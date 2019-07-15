@@ -2,16 +2,16 @@
 <template>
   <div class="main">
     <div class="sidebar" :style="{width:sidebarWidth,'overflow':'auto'}">
-      <el-menu :default-active="$route.path" class="el-menu-vertical-demo" text-color="#fff" active-text-color="rgb(64, 158, 255)" background-color="#304156" :collapse="isCollapse">
+      <el-menu :default-active="$route.path" class="el-menu-vertical-demo teat1" text-color="#fff" active-text-color="rgb(64, 158, 255)" background-color="#304156" :collapse="isCollapse">
           <template v-for="(item,index) in routerList">
-            <router-link v-if="item.children && item.radius && item.children.length===1  && !item.children[0].children && item.roles.filter(res=>res==roles).length" :to="item.path+'/'+item.children[0].path" :key="item.name">
+            <router-link v-if="item.children && item.radius && item.children.length===1  && !item.children[0].children " :to="item.path+'/'+item.children[0].path" :key="item.name">
               <el-menu-item :index="item.path+'/'+item.children[0].path" class='submenu-title-noDropdown'>
                 <i :class="'icon iconfont icon-'+item.icon"></i>
                 <span slot="title">{{item.children[0].name}}</span>
               </el-menu-item>
             </router-link>
 
-            <el-submenu v-if="item.children&& item.radius && (item.children.length!==1 || (item.children.length===1 && item.children[0].children)) && item.roles.filter(res=>res==roles).length" :index="item.path" :key="item.name">
+            <el-submenu class="teat2" v-if="item.children&& item.radius && (item.children.length!==1 || (item.children.length===1 && item.children[0].children)) && item.roles.filter(res=>res==roles).length" :index="item.path" :key="item.name">
               <template slot="title">
                 <i :class="'icon iconfont icon-'+item.icon"></i>
                 <span slot="title">{{item.name}}</span>
@@ -19,13 +19,13 @@
 
               <template v-for="child in item.children">
 
-                <el-submenu v-if="child.radius && child.children && child.children.length>0 && child.roles.filter(res=>res==roles).length" :index="item.path+'/'+child.path" :key="child.name">
+                <el-submenu class="teat3" v-if="child.radius && child.children && child.children.length>0 && child.roles.filter(res=>res==roles).length" :index="item.path+'/'+child.path" :key="child.name">
                   <template slot="title">
                     <i :class="'icon iconfont icon-'+child.icon"></i>
                     <span slot="title">{{child.name}}</span>
                   </template>
 
-                  <template v-for="son in child.children">
+                  <template class="teat4" v-for="son in child.children">
                     <router-link :to="item.path+'/'+child.path+'/'+son.path" :key="son.name" v-if="son.radius && son.roles.filter(res=>res==roles).length">
                       <el-menu-item :index="item.path+'/'+child.path+'/'+son.path">
                         <i :class="son.icon"></i>
@@ -51,7 +51,7 @@
       <div class="topBar">
         <el-button @click="isCollapse=!isCollapse" type="text" :class="`iconfont ${isCollapse?'icon-kuaijiecaidan':'icon-caidan'} collapse fl`"></el-button>
         <el-breadcrumb separator-class="el-icon-arrow-right" class="fl topBar-title">
-          <el-breadcrumb-item :to="{ path: '/index/index' }" >零零智能管理系统</el-breadcrumb-item>
+          <el-breadcrumb-item :to="{ path: '/index/index' }" >零零共享单车后台软件</el-breadcrumb-item>
           <el-breadcrumb-item v-for="item in $route.matched" v-if="item.name" :key="item.path" class="no-redirect">{{item.name}}</el-breadcrumb-item>    
         </el-breadcrumb>
         <el-dropdown class="fr" @command="handleCommand">
@@ -264,6 +264,7 @@ export default {
     ...mapState(["loading", "routerList", "viewTagList","roles"]),
     // ...mapGetters(["loading", "routerList", "viewTagList"]),
     viewTagKeep(){
+      console.log(this.routerList)
       let arr=[]
       for(let i in this.viewTagList){
         arr.push(this.viewTagList[i].keep)

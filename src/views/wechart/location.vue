@@ -51,6 +51,7 @@
         </el-row>
     </div>
 </template>
+
 <script>
     import api from '@/api/wechart/index'
     import mixin from '@/mixins/index'

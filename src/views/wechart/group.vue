@@ -189,7 +189,7 @@
                 this.search=''
                 this.listLoading=true
                 this.rollBack('scroll')
-                api.getGroupListPagination({pageSize:this.page.size,offset:this.page.index-1}).then(_=>{
+                api.getGroupListPagination({pageSize:this.page.size,offset:this.page.index-1}).then(_=>{ 
                     if(Array.isArray(_.data)){
                         this.list=_.data
                         this.listxian=_.data

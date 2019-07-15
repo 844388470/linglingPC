@@ -62,6 +62,10 @@
                                     v-if="[99].filter(res=>res==roles).length"
                                     size="mini"
                                     @click="jihuo(scope.row.imei)">激活</el-button>
+                                    <el-button
+                                    v-if="[99].filter(res=>res==roles).length"
+                                    size="mini"
+                                    @click="">查看日志</el-button>
                                 </template>
                             </el-table-column>
                         </el-table>

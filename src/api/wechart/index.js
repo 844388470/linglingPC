@@ -171,6 +171,18 @@ const getMessageListPagination = (id,data) => (
     axios.post(`/devices/${id}/messages/pagination`,data)
 )
 
+const addlist = (data) => (
+    axios.post(`https://d603.rinlink.com/iot_devices`,data)
+)
+
+const getlistnew = (data) => (
+    axios.get(`https://d603.rinlink.com/iot_devices?pageSize=15&pageNo=${data}`)
+)
+
+const deletenew = (data) => (
+    axios.delete(`https://d603.rinlink.com/iot_devices/${data}`)
+)
+
 export default {
     login,
     getzhucheList,
@@ -207,5 +219,8 @@ export default {
     addCoor,
     relieveCoor,
     getMessageList,
-    getMessageListPagination
+    getMessageListPagination,
+    addlist,
+    getlistnew,
+    deletenew
 }

@@ -19,7 +19,7 @@ const list={
         redirect: '/index/index',
         icon: 'shouye',
         children: [{path: 'index',name:'首页',radius:true,roles:[0,1,88,99],component: () =>import('@/views/wechart/users'),meta: { keep:'users' }}]
-      },
+      }, 
       // {
       //   path: '/EquMonit',
       //   name: '设备监控',
@@ -108,6 +108,7 @@ const list={
           {path: 'history',name: '设备轨迹',component: () =>import('@/views/wechart/history'),meta: { keep: 'history' },radius:true,roles:[0,1,88,99],},
           {path: 'location',name: '设备定位',component: () =>import('@/views/wechart/location'),meta: { keep: 'location' },radius:true,roles:[0,1,88,99],},
           // {path: 'wechartUser',name: '小程序用户',component: () =>import('@/views/wechart/wechartUser'),meta: { keep: 'wechartUser' },radius:true,roles:[0,1,88,99],},
+          {path: 'shebei',name: '直连设备',component: () =>import('@/views/wechart/shebei'),meta: { keep: 'shebei' },radius:true,roles:[0,1,88,99],},
         ]
       },
       {
@@ -122,6 +123,7 @@ const list={
           {path: 'wechartUser',name: '用户',component: () =>import('@/views/wechart/wechartUser'),meta: { keep: 'wechartUser' },radius:true,roles:[0,1,88,99],},
           // {path: 'user',name: '系统用户',component: () =>import('@/views/wechart/user'),meta: { keep: 'user' },radius:true,roles:[0,1,88,99],},
           {path: 'wxUserDetails',name: '微信用户详情',component: _import('menu4/menu4'),meta: { index: '4' },radius:false,},
+          {path: 'Customerlist',name: '客户',component: () =>import('@/views/wechart/Customerlist'),meta: { keep: 'Customerlist' },radius:true,roles:[88,99],},
         ]
       },
       {
@@ -137,6 +139,20 @@ const list={
           {path: 'policeMessage',name: '报警消息展示',component: () =>import('@/views/wechart/policeMessage'),meta: { keep: 'policeMessage' },radius:true,roles:[88,99],},
         ]
       },
+
+      // {
+      //   path: '/Journal',
+      //   name: '日志列表',
+      //   radius:true,
+      //   roles:[0,1,88,99],
+      //   component: _import('index'),
+      //   icon: 'fenzuguanli',
+      //   redirect: '/Journal/',
+      //   children: [
+      //     {path: 'iotJournal',name: '电信设备日志',component: () =>import('@/views/wechart/iotJournal'),meta: { keep: 'iotJournal' },radius:true,roles:[0,1,88,99],},
+      //     {path: 'directJournal',name: '直连设备日志',component: () =>import('@/views/wechart/directJournal'),meta: { keep: 'directJournal' },radius:true,roles:[0,1,88,99],},
+      //   ]
+      // },
       {
         path: '/GroupManagement',
         name: '分组管理',
@@ -167,7 +183,7 @@ const list={
 
     ]
   }
-
+console.log(list)
 export const route=new Router(list)
 
 export const routerlist=list

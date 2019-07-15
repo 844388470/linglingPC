@@ -1,7 +1,7 @@
 <template>
   <div class="login-container">
     <el-form class="card-box login-form" autoComplete="on" :model="loginForm" :rules="loginRules" ref="loginForm" label-position="left">
-      <h3 class="title">零零智能管理系统</h3>
+      <h3 class="title">零零共享单车后台软件</h3>
 
       <el-form-item prop="username">
        <span class="pl10 c iconfont icon-denglu"></span>

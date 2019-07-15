@@ -8,7 +8,7 @@
                         <span class="icon iconfont icon-mobancaidan"></span>
                     </el-col>
                     <el-col :span="18">
-                        <p class="title_name">用户总数</p>
+                        <p class="title_name">设备总数</p>
                         <count-to :start-val="0" :end-val="userNum" :duration="2600" class="title_num"/>
                     </el-col>
                 </el-row>
@@ -21,7 +21,7 @@
                         <span class="icon iconfont icon-mobancaidan"></span>
                     </el-col>
                     <el-col :span="18">
-                        <p class="title_name">三天内新增用户</p>
+                        <p class="title_name">在线设备</p>
                         <count-to :start-val="0" :end-val="userNumt" :duration="2600" class="title_num"/>
                     </el-col>
                 </el-row>
@@ -34,7 +34,7 @@
                         <span class="icon iconfont icon-mobancaidan"></span>
                     </el-col>
                     <el-col :span="18">
-                        <p class="title_name">一个月内新增用户</p>
+                        <p class="title_name">离线设备</p>
                         <count-to :start-val="0" :end-val="userNumo" :duration="2600" class="title_num"/>
                     </el-col>
                 </el-row>
@@ -47,7 +47,7 @@
                         <span class="icon iconfont icon-mobancaidan"></span>
                     </el-col>
                     <el-col :span="18">
-                        <p class="title_name">三个月内新增用户</p>
+                        <p class="title_name">报警设备</p>
                         <count-to :start-val="0" :end-val="userNumty" :duration="2600" class="title_num"/>
                     </el-col>
                 </el-row>
